@@ -1,0 +1,9 @@
+# Sur le PC GPU (Greg) : installer d'abord PyTorch avec CUDA via la commande de pytorch.org,
+# puis lancer : pip install -r requirements.txt
+torch
+torchvision
+scikit-learn
+matplotlib
+pandas
+pillow
+tqdm

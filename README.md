@@ -1,1 +1,43 @@
-# TIP_Project
+# TIP_Project : challenge de classification Food-11
+
+Projet de TIP (4TC, INSA Lyon) : classification d'images en 11 catégories d'aliments par transfer learning,
+avec un compromis entre performance (F1 macro) et frugalité (nombre de paramètres).
+
+## Structure
+
+| Fichier | Rôle | Responsable |
+|---|---|---|
+| `data.py` | chargement, split, transformations | Maksim |
+| `models.py` | baseline du TD, MobileNetV2, ResNet-18 | Julien |
+| `train.py` | entraînement d'une configuration | Greg |
+| `evaluate.py` | F1, confusion, frugalité | Oggy |
+| `predict.py` | JSON de prédictions du test | Oggy |
+| `visualize.py` | feature maps | Maksim |
+| `notebooks/` | analyses (un notebook par personne) | tous |
+| `results/` | métriques et figures légères | tous |
+
+## Installation
+
+```bash
+python -m venv .venv
+.venv\Scripts\activate        # Windows
+pip install -r requirements.txt
+```
+
+PC avec GPU NVIDIA : installer d'abord PyTorch avec CUDA (commande sur pytorch.org), puis `requirements.txt`.
+
+## Données
+
+Dézipper `food-11.zip` (fourni par l'enseignant) dans `data/food-11/`.
+Le dossier `data/` n'est jamais envoyé sur Git.
+
+## Commandes
+
+À compléter par chacun avec la commande de son script.
+
+## Règles de travail
+
+- `git pull` avant de commencer
+- chacun modifie surtout son propre fichier
+- un notebook par personne
+- jamais de données ni de fichiers `.pth` sur Git
