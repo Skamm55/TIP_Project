@@ -35,9 +35,21 @@ Le dossier `data/` n'est jamais envoyé sur Git.
 
 À compléter par chacun avec la commande de son script.
 
+## Suivi des tâches
+
+Le déroulé du projet, les tâches de chacun et l'avancement sont suivis sur la page Claude **Projet Food-11** :
+https://claude.ai/artifact/Fj6VGKKU1tyPNFoUtjYszb
+
+- un onglet par personne avec ses tâches et ce qu'il faut faire concrètement
+- cocher une tâche quand elle est terminée (choisir son nom dans « Je suis »)
+- l'onglet Pilotage montre l'avancement et le temps restant
+
+Il faut un compte Claude (gratuit) et l'invitation de Maksim pour pouvoir cocher.
+
 ## Règles de travail
 
 - `git pull` avant de commencer
 - chacun modifie surtout son propre fichier
 - un notebook par personne
 - jamais de données ni de fichiers `.pth` sur Git
+- dans les messages de commit, citer le numéro de la tâche (ex. `1.3 data.py : split stratifié`)
