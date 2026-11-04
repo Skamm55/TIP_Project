@@ -48,15 +48,22 @@ def noms_images(loader):
 
 
 def frugalite(P, R, w=0.3):
-    """R en millions de paramètres (c'est ce qui redonne les exemples de l'énoncé)."""
+    """Score de frugalité à partir du F1 macro P et du nombre de paramètres R.
+
+    R en millions de paramètres (c'est ce qui redonne les exemples de l'énoncé)."""
     return P - w / (1 + 1 / R)
 
 
 def compter_params(model):
+    """Nombre total de paramètres du modèle (gelés compris)."""
     return sum(p.numel() for p in model.parameters())
 
 
 def calculer_metriques(y_true, y_pred, n_params=None, w=0.3):
+    """Calcule le F1 macro, l'accuracy, les métriques par classe et la matrice de confusion.
+
+    Si on donne n_params, ajoute aussi le nombre de paramètres et le score de frugalité.
+    Renvoie un dictionnaire (c'est lui qui est enregistré dans metrics.json)."""
     labels = list(range(len(CLASSES)))
     f1_macro = f1_score(y_true, y_pred, labels=labels, average="macro", zero_division=0)
     precisions = precision_score(y_true, y_pred, labels=labels, average=None, zero_division=0)
@@ -86,6 +93,7 @@ def calculer_metriques(y_true, y_pred, n_params=None, w=0.3):
 
 
 def sauver_resultats(metriques, y_true, y_pred, confiances, noms, dossier=RESULTS_DIR):
+    """Enregistre metrics.json et val_predictions.csv (une ligne par image de validation)."""
     dossier = Path(dossier)
     dossier.mkdir(parents=True, exist_ok=True)
 
@@ -100,6 +108,7 @@ def sauver_resultats(metriques, y_true, y_pred, confiances, noms, dossier=RESULT
 
 
 def afficher(metriques):
+    """Affiche le F1 macro, la frugalité et un tableau des métriques par classe."""
     print(f"F1 macro : {metriques['f1_macro']:.4f}   accuracy : {metriques['accuracy']:.4f}")
     if "frugalite" in metriques:
         print(f"Paramètres : {metriques['n_params'] / 1e6:.2f} M   frugalité : {metriques['frugalite']:.4f}")

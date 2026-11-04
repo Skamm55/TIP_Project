@@ -24,6 +24,7 @@ NB_IMAGES_TEST = 3097
 
 
 def choisir_device():
+    """Renvoie "cuda" si on a un GPU NVIDIA, "mps" sur Mac, sinon "cpu"."""
     if torch.cuda.is_available():
         return "cuda"
     if torch.backends.mps.is_available():
@@ -54,6 +55,10 @@ def predire_test(model, test_loader, device="cpu"):
 
 
 def verifier_predictions(predictions, nb_attendu=NB_IMAGES_TEST):
+    """Vérifie que les prédictions sont au format du serveur, sinon lève une ValueError.
+
+    On vérifie le nombre d'images, les clés (nom sans extension), les classes,
+    et qu'il ne manque aucune image entre 0 et nb_attendu - 1."""
     if len(predictions) != nb_attendu:
         raise ValueError(f"{len(predictions)} prédictions au lieu de {nb_attendu}")
     for nom, classe in predictions.items():
@@ -66,6 +71,7 @@ def verifier_predictions(predictions, nb_attendu=NB_IMAGES_TEST):
 
 
 def ecrire_json(predictions, chemin):
+    """Écrit les prédictions dans un fichier JSON, triées par numéro d'image."""
     chemin = Path(chemin)
     chemin.parent.mkdir(parents=True, exist_ok=True)
     # tri numérique : 0, 1, 2... et pas 0, 1, 10...

@@ -3,7 +3,7 @@
 Journal de ce qui a été fait sur le projet Food-11, par personne et par tâche.
 Les numéros de tâche renvoient à la page de suivi « Projet Food-11 ».
 
-Dernière mise à jour : 3 novembre 2026.
+Dernière mise à jour : 4 novembre 2026.
 
 ## Maksim
 
@@ -48,9 +48,22 @@ Dernière mise à jour : 3 novembre 2026.
   - script autonome produisant les statistiques et les figures de l'analyse.
 - **1.4** Calcul de la normalisation : moyenne RGB de Food-11 (0,570 / 0,451 / 0,327) comparée à celle d'ImageNet (0,485 / 0,456 / 0,406). Décision : garder la normalisation ImageNet pour toutes les configurations, car les réseaux pré-entraînés ont appris leurs poids avec ces valeurs.
 
-### Prochaine tâche
+### Feature maps (tâche 1.9), le 4 novembre
 
-- **1.9** `visualize.py` : visualisation des feature maps de la 1re couche de convolution.
+- **1.9** Écriture de `visualize.py`, l'équivalent Python de `Visualize_features.m` du TD :
+  - MobileNetV2 ou ResNet-18 pré-entraînés sur ImageNet, activations récupérées avec un forward hook sur la 1re couche (après l'activation par défaut, ou sortie brute de la conv avec `--stage conv`) ;
+  - 3 figures : feature maps d'une image (image + 15 canaux), comparaison entre classes (une ligne par classe, 7 canaux les plus actifs), filtres de la 1re couche (32 noyaux 3×3 pour MobileNetV2, 64 noyaux 7×7 pour ResNet-18) ;
+  - option `--checkpoint` pour refaire les figures plus tard avec un modèle entraîné (nécessite `models.py`) ;
+  - réutilise `data.py` (chargement et prétraitement des images), figures dans `results/figures/`.
+- Premières observations pour le rapport (tâche 4.5) : on retrouve des détecteurs de contours et de textures (canaux 4, 5, 7, 19 de MobileNetV2), des canaux sensibles à la couleur et à la luminosité (9, 25, 27), et chez ResNet-18 des filtres en barres orientées (type Gabor) et des filtres de couleurs opposées.
+- Relecture de `evaluate.py` et `predict.py` d'Oggy et ajout des docstrings manquantes.
+
+### Prochaines tâches
+
+- **1.11** squelette du rapport et journal IA
+- **3.3** protocole de l'étude d'augmentation (à envoyer à Greg)
+- **4.5** interprétation des feature maps (les figures sont prêtes)
+- relancer Julien (`models.py`) et Greg (`train.py`) : l'assemblage 2.1 est bloqué, et le repère « Code testé en petit » est le 6 novembre
 
 ## Greg
 
@@ -62,12 +75,31 @@ Rien de consigné pour l'instant.
 
 ## Oggy
 
-Rien de consigné pour l'instant.
+### Évaluation et prédictions (tâches 1.7 et 1.8), le 4 novembre
+
+- **1.7** `evaluate.py` :
+  - F1 macro, accuracy, précision / rappel / F1 par classe et matrice de confusion (avec scikit-learn) ;
+  - score de frugalité `Frug = P - w / (1 + 1/R)` avec w = 0,3 et R en millions de paramètres. Avec R en millions on retrouve bien les exemples de l'énoncé (0,57 et 0,54), ce qui n'est pas le cas avec R en nombre brut de paramètres ;
+  - export de `metrics.json` et de `val_predictions.csv` (image, vraie classe, classe prédite, confiance), utile pour l'analyse des erreurs ;
+  - auto-test sans dataset (`python evaluate.py`) : 5 tests, tous OK.
+- **1.8** `predict.py` :
+  - génère le JSON pour le serveur au format `{"0": "bread", ...}`, trié dans l'ordre numérique ;
+  - vérifie le JSON avant de l'écrire : 3 097 images, clés sans extension, pas de doublon, classes connues ;
+  - accepte des poids enregistrés seuls ou dans un checkpoint (sous la clé `"model"`) ;
+  - auto-test sans dataset (`python predict.py --self-test`) : 4 tests, tous OK.
+
+### Points à caler avec les autres
+
+- Greg (`train.py`) : le checkpoint doit contenir les poids sous la clé `"model"` (ou être un state_dict seul), sinon `predict.py` ne pourra pas le relire.
+- Greg : `evaluer()` écrit par défaut dans `results/` ; il faudra lui passer un dossier par configuration (`dossier=results/<config>`) pour ne pas écraser les résultats d'un modèle par ceux du suivant.
+- Julien (`models.py`) : `predict.py` appelle `get_model(name, mode, num_classes=11)`, comme prévu dans l'en-tête de `models.py`. `evaluate.py` a sa propre fonction `compter_params`, qui fait la même chose que le `count_params` prévu dans `models.py` : on pourra n'en garder qu'une.
 
 ## Usage de l'IA (pour l'annexe du rapport)
 
-| Qui | Outil | Usage | Parties concernées |
-|---|---|---|---|
-| Maksim | Claude | Analyse de l'énoncé et des supports de cours, aide au choix de l'approche, plan d'action et organisation | Cadrage, organisation |
-| Maksim | Claude Code | Écriture du code à partir de cahiers des charges, puis relecture et tests | `data.py` |
-| Maksim | Claude, Claude Code | Rédaction de la note d'analyse à partir des résultats obtenus | `DATA.md` |
+| Qui    | Outil               | Usage                                                                                                    | Parties concernées          |
+| ------ | ------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------- |
+| Maksim | Claude              | Analyse de l'énoncé et des supports de cours, aide au choix de l'approche, plan d'action et organisation | Cadrage, organisation       |
+| Maksim | Claude Code         | Écriture du code à partir de cahiers des charges, puis relecture et tests                                | `data.py`                   |
+| Maksim | Claude, Claude Code | Rédaction de la note d'analyse à partir des résultats obtenus                                            | `DATA.md`                   |
+| Maksim | Claude Code         | Écriture du code à partir d'un cahier des charges, tests et vérification des figures                     | `visualize.py`              |
+| Oggy   | Claude Code         | Aide à l'écriture du code (commits co-signés par Claude)                                                 | `evaluate.py`, `predict.py` |

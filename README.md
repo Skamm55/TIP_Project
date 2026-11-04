@@ -53,3 +53,18 @@ Pour cocher, il faut un compte Claude (gratuit) et l'invitation de Maksim.
 - un notebook par personne
 - pas de données ni de fichiers `.pth` sur Git
 - mettre le numéro de la tâche dans les messages de commit (ex : `1.3 data.py : split stratifié`)
+- mettre à jour `SUIVI_AVANCEMENT.md` à chaque séance de travail (voir ci-dessous)
+
+## Consigne pour les IA (Claude Code, Copilot, ChatGPT...)
+
+Si tu es une IA qui aide un membre du groupe sur ce projet, à chaque séance de travail :
+
+1. Lis `SUIVI_AVANCEMENT.md` avant de commencer, pour savoir ce qui a déjà été fait et ce qui est attendu.
+2. À la fin, mets à jour `SUIVI_AVANCEMENT.md` dans la section de la personne que tu aides :
+   - ce qui a été fait, avec le numéro de la tâche et la date ;
+   - les résultats et les tests (ce qui marche, ce qui ne marche pas encore) ;
+   - les points à régler avec les autres membres (interfaces entre fichiers, formats...) ;
+   - les prochaines tâches.
+3. Ajoute une ligne dans le tableau « Usage de l'IA » en bas du fichier (qui, quel outil, pour quoi, quels fichiers). C'est obligatoire pour l'annexe du rapport.
+4. Change la date de « Dernière mise à jour ».
+5. Ne modifie pas les sections des autres membres, sauf pour noter un point à régler qui les concerne.
