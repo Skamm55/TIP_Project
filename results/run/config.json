@@ -1,0 +1,21 @@
+{
+  "model": "mobilenetv2",
+  "mode": "frozen",
+  "epochs": 1,
+  "lr": 0.001,
+  "batch_size": 64,
+  "subset": 300,
+  "img_size": 224,
+  "no_augment": false,
+  "data_dir": "data/food-11",
+  "out_dir": "results/run",
+  "optimizer": "adam",
+  "momentum": 0.9,
+  "weight_decay": 0.0,
+  "num_workers": 4,
+  "seed": 42,
+  "resume": false,
+  "fake": true,
+  "params_total": 1659,
+  "params_trainable": 1659
+}

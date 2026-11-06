@@ -1,0 +1,10 @@
+{
+  "model": "mobilenetv2",
+  "mode": "frozen",
+  "epochs": 1,
+  "best_val_f1": 0.017524644030668127,
+  "best_epoch": 1,
+  "params_total": 1659,
+  "params_trainable": 1659,
+  "train_seconds_this_session": 4.928257465362549
+}
