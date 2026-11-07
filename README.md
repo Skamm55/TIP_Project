@@ -16,7 +16,7 @@ Le but est d'avoir un bon F1 macro tout en gardant un modèle léger (peu de par
 | `notebooks/`   | un notebook par personne                       | tous   |
 | `results/`     | métriques et petites figures                   | tous   |
 
-Pour l'analyse du dataset, voir `DATA.md`.
+Pour l'analyse du dataset, voir `DATA.md`. Pour l'étude de l'augmentation, voir `PROTOCOLE_AUGMENTATION.md`.
 
 ## Installation
 
@@ -46,10 +46,13 @@ Les 5 configurations (sur le PC de Greg) :
 ```bash
 python train.py --model baseline
 python train.py --model mobilenetv2 --mode frozen
-python train.py --model mobilenetv2 --mode finetune
+python train.py --model mobilenetv2 --mode finetune --epochs 15
 python train.py --model resnet18 --mode frozen
-python train.py --model resnet18 --mode finetune
+python train.py --model resnet18 --mode finetune --epochs 15
 ```
+
+Le fine-tuning se fait sur 15 époques, comme prévu dans `PROTOCOLE_AUGMENTATION.md` (le run sans
+augmentation de la tâche 3.4 doit avoir exactement les mêmes réglages).
 
 Chaque run écrit dans `results/<modèle>_<mode>/` : courbes, `history.csv`, `metrics.json`
 (F1, matrice de confusion, frugalité), `val_predictions.csv` et `best.pth` (pas sur Git).

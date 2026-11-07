@@ -79,11 +79,18 @@ Dernière mise à jour : 7 novembre 2026.
   - SGD lr 1e-4 : descente régulière de 2,42 à environ 1,9 ; Adam lr 1e-4 : pic à 4,6 puis descente vers 2,0 ;
   - explication pour le rapport : la FC de la baseline reçoit 8×111×111 = 98 568 valeurs en 224×224, contre 8×15×15 = 1 800 sur CIFAR-10 dans le TD, donc le lr de 1e-3 du TD est trop fort ici. L'architecture de la baseline n'est pas modifiée.
 
+### Test de surapprentissage (tâche 2.2) et protocole d'augmentation (tâche 3.3), le 7 novembre
+
+- **2.2** MobileNetV2 fine-tuné sur 41 images, sans augmentation, 30 époques, batch 8 (`results/test_surapprentissage/`) :
+  - accuracy train de 0,02 à 1,0 (puis 0,976, une seule image ratée), loss train de 2,49 à environ 0,1 : la chaîne sait apprendre, pas de bug ;
+  - loss de validation minimale à l'époque 12 (1,71) puis remonte au-dessus de 2,2 : surapprentissage bien visible, figure utilisable pour la partie biais / variance.
+- **3.3** Protocole écrit dans `PROTOCOLE_AUGMENTATION.md` : meilleure config en fine-tuning, avec / sans `--no-augment`, 15 époques, seule l'augmentation change. Les commandes de fine-tuning du README sont passées à `--epochs 15` pour que le run de la 3.2 serve de référence.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
-- **3.3** protocole de l'étude d'augmentation (à envoyer à Greg)
 - **4.5** interprétation des feature maps (les figures sont prêtes)
+- envoyer à Greg la commande de la 3.4 une fois la meilleure config de la 3.2 connue
 - vérifier avec Greg qu'il comprend la nouvelle version de `train.py` avant les vrais runs
 
 ## Greg
@@ -94,6 +101,7 @@ Rien de consigné pour l'instant.
 
 - `train.py` a été réécrit par Maksim le 7 novembre (voir sa section) : à relire avant de lancer les 5 configurations sur ton PC.
 - Lancer les 5 configurations avec les commandes du README, et pousser les dossiers `results/<config>/` (sans les `.pth`).
+- Les deux fine-tuning (3.2) se lancent avec `--epochs 15` : ils servent de référence pour l'étude de l'augmentation (voir `PROTOCOLE_AUGMENTATION.md`).
 
 ## Julien
 

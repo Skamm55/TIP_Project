@@ -1,0 +1,232 @@
+{
+  "f1_macro": 0.3151515151515151,
+  "accuracy": 0.5454545454545454,
+  "par_classe": {
+    "bread": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 1
+    },
+    "dairy": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 0
+    },
+    "dessert": {
+      "precision": 0.5,
+      "rappel": 0.5,
+      "f1": 0.5,
+      "nb_images": 2
+    },
+    "egg": {
+      "precision": 1.0,
+      "rappel": 1.0,
+      "f1": 1.0,
+      "nb_images": 1
+    },
+    "fried": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 1
+    },
+    "meat": {
+      "precision": 0.5,
+      "rappel": 0.5,
+      "f1": 0.5,
+      "nb_images": 2
+    },
+    "noodles-pasta": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 0
+    },
+    "rice": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 0
+    },
+    "seafood": {
+      "precision": 0.0,
+      "rappel": 0.0,
+      "f1": 0.0,
+      "nb_images": 1
+    },
+    "soup": {
+      "precision": 0.6666666666666666,
+      "rappel": 1.0,
+      "f1": 0.8,
+      "nb_images": 2
+    },
+    "vegetable-fruit": {
+      "precision": 0.5,
+      "rappel": 1.0,
+      "f1": 0.6666666666666666,
+      "nb_images": 1
+    }
+  },
+  "matrice_confusion": [
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      2,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      1
+    ]
+  ],
+  "classes": [
+    "bread",
+    "dairy",
+    "dessert",
+    "egg",
+    "fried",
+    "meat",
+    "noodles-pasta",
+    "rice",
+    "seafood",
+    "soup",
+    "vegetable-fruit"
+  ],
+  "n_params": 2237963,
+  "frugalite": 0.10780235767195159
+}
