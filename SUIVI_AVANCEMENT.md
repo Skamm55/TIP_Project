@@ -3,7 +3,7 @@
 Journal de ce qui a été fait sur le projet Food-11, par personne et par tâche.
 Les numéros de tâche renvoient à la page de suivi « Projet Food-11 ».
 
-Dernière mise à jour : 4 novembre 2026.
+Dernière mise à jour : 7 novembre 2026.
 
 ## Maksim
 
@@ -58,20 +58,45 @@ Dernière mise à jour : 4 novembre 2026.
 - Premières observations pour le rapport (tâche 4.5) : on retrouve des détecteurs de contours et de textures (canaux 4, 5, 7, 19 de MobileNetV2), des canaux sensibles à la couleur et à la luminosité (9, 25, 27), et chez ResNet-18 des filtres en barres orientées (type Gabor) et des filtres de couleurs opposées.
 - Relecture de `evaluate.py` et `predict.py` d'Oggy et ajout des docstrings manquantes.
 
+### Assemblage de la chaîne (tâche 2.1), le 7 novembre
+
+- Relecture de `models.py` (Julien) et `train.py` (Greg) après le pull du 6 novembre.
+- `models.py` : correct, test OK (baseline 1,08 M paramètres, MobileNetV2 2,24 M, ResNet-18 11,18 M). Seule modif : suppression de l'ancien en-tête, qui faisait une 2e docstring.
+- `train.py` réécrit pour que la chaîne marche et pour rester au niveau du cours :
+  - 2 bugs corrigés : `get_loaders` n'existe pas dans `data.py` (c'est `get_dataloaders`), et sans `--subset` on passait 0 au lieu de `None`, ce qui ne gardait que 2 images par classe ;
+  - options retirées car hors cours ou inutiles : données factices, reprise d'entraînement, précision mixte, weight decay ;
+  - gardé : Adam (ou SGD avec momentum), entropie croisée, meilleur modèle choisi sur le F1 macro de validation, courbes d'apprentissage ;
+  - learning rate par défaut 1e-3, et 1e-4 en fine-tuning pour ne pas abîmer les poids ImageNet ;
+  - en mode frozen, les BatchNorm du réseau gelé restent en mode eval (sinon le réseau « gelé » change quand même) ;
+  - à la fin, le meilleur modèle est évalué avec `evaluer()` d'`evaluate.py` : `metrics.json`, matrice de confusion, frugalité, `val_predictions.csv` avec le nom des images ;
+  - un dossier par configuration (`results/<modèle>_<mode>/`), pour ne plus écraser les résultats.
+- Suppression de `results/run/` : c'était un test fait avec des fausses images et un CNN de secours, pas avec MobileNetV2.
+- Test en petit sur CPU (300 images, 2 époques) : baseline, MobileNetV2 gelé et ResNet-18 fine-tuné tournent jusqu'au bout, et `predict.py` relit le `best.pth` produit.
+- Commandes des 5 configurations ajoutées dans le README.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
 - **3.3** protocole de l'étude d'augmentation (à envoyer à Greg)
 - **4.5** interprétation des feature maps (les figures sont prêtes)
-- relancer Julien (`models.py`) et Greg (`train.py`) : l'assemblage 2.1 est bloqué, et le repère « Code testé en petit » est le 6 novembre
+- vérifier avec Greg qu'il comprend la nouvelle version de `train.py` avant les vrais runs
 
 ## Greg
 
 Rien de consigné pour l'instant.
 
+### Points à régler
+
+- `train.py` a été réécrit par Maksim le 7 novembre (voir sa section) : à relire avant de lancer les 5 configurations sur ton PC.
+- Lancer les 5 configurations avec les commandes du README, et pousser les dossiers `results/<config>/` (sans les `.pth`).
+
 ## Julien
 
 Rien de consigné pour l'instant.
+
+### Points à régler
+
+- `count_params` de `models.py` est maintenant utilisé par `train.py`. `evaluate.py` a encore sa propre fonction `compter_params` qui fait la même chose (à voir avec Oggy).
 
 ## Oggy
 
@@ -103,3 +128,4 @@ Rien de consigné pour l'instant.
 | Maksim | Claude, Claude Code | Rédaction de la note d'analyse à partir des résultats obtenus                                            | `DATA.md`                   |
 | Maksim | Claude Code         | Écriture du code à partir d'un cahier des charges, tests et vérification des figures                     | `visualize.py`              |
 | Oggy   | Claude Code         | Aide à l'écriture du code (commits co-signés par Claude)                                                 | `evaluate.py`, `predict.py` |
+| Maksim | Claude Code         | Relecture de `models.py` et `train.py`, correction des bugs et réécriture de `train.py`, tests           | `train.py`, `models.py`     |

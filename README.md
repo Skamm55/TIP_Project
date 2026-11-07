@@ -35,7 +35,34 @@ Le dossier `data/` ne doit jamais aller sur Git.
 
 ## Commandes
 
-À compléter : chacun ajoute la commande pour lancer son script.
+Test rapide de toute la chaîne (sur CPU, quelques minutes) :
+
+```bash
+python train.py --model mobilenetv2 --mode frozen --subset 300 --epochs 1
+```
+
+Les 5 configurations (sur le PC de Greg) :
+
+```bash
+python train.py --model baseline
+python train.py --model mobilenetv2 --mode frozen
+python train.py --model mobilenetv2 --mode finetune
+python train.py --model resnet18 --mode frozen
+python train.py --model resnet18 --mode finetune
+```
+
+Chaque run écrit dans `results/<modèle>_<mode>/` : courbes, `history.csv`, `metrics.json`
+(F1, matrice de confusion, frugalité), `val_predictions.csv` et `best.pth` (pas sur Git).
+Le learning rate vaut 1e-3 par défaut et 1e-4 en fine-tuning (`--lr` pour le changer).
+Pour l'étude de l'augmentation, ajouter `--no-augment` (le dossier finit par `_noaug`).
+
+JSON pour le serveur, à partir d'un modèle entraîné :
+
+```bash
+python predict.py --model mobilenetv2 --mode frozen --weights results/mobilenetv2_frozen/best.pth
+```
+
+Feature maps : `python visualize.py --model mobilenetv2` (voir `python visualize.py -h`).
 
 ## Suivi des tâches
 
