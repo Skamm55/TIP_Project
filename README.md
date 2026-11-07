@@ -53,8 +53,20 @@ python train.py --model resnet18 --mode finetune
 
 Chaque run écrit dans `results/<modèle>_<mode>/` : courbes, `history.csv`, `metrics.json`
 (F1, matrice de confusion, frugalité), `val_predictions.csv` et `best.pth` (pas sur Git).
-Le learning rate vaut 1e-3 par défaut et 1e-4 en fine-tuning (`--lr` pour le changer).
 Pour l'étude de l'augmentation, ajouter `--no-augment` (le dossier finit par `_noaug`).
+
+Réglages par défaut, valeurs de départ à ajuster selon les courbes :
+
+| Configuration                 | Optimiseur            | Learning rate |
+| ----------------------------- | --------------------- | ------------- |
+| baseline                      | SGD, momentum 0.9     | 1e-4          |
+| pré-entraîné, mode frozen     | SGD, momentum 0.9     | 1e-2          |
+| pré-entraîné, mode finetune   | SGD, momentum 0.9     | 1e-3          |
+
+SGD avec momentum 0.9, c'est le `sgdm` des `trainingOptions` du TD Matlab.
+Pour la baseline, le TD utilisait 1e-3, mais sur des images 224×224 la couche FC est
+beaucoup plus grosse (8×111×111 entrées au lieu de 8×15×15) et la loss diverge avec 1e-3.
+On peut tout changer avec `--lr`, `--optimizer adam`, `--momentum` et `--weight-decay`.
 
 JSON pour le serveur, à partir d'un modèle entraîné :
 

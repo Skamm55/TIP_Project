@@ -3,8 +3,9 @@ train.py : entraînement d'un modèle sur Food-11.
 Responsable : Greg (tâche 1.6)
 
 Le principe est le même que dans le TD : on entraîne par mini-batchs avec
-l'entropie croisée, et à chaque époque on regarde la loss, l'accuracy et le
-F1 macro sur la validation. On garde le modèle qui a le meilleur F1 macro.
+l'entropie croisée et SGD avec momentum, et à chaque époque on regarde la loss,
+l'accuracy et le F1 macro sur la validation. On garde le modèle qui a le
+meilleur F1 macro.
 
 Exemples :
     test rapide sur CPU (300 images, 1 époque) :
@@ -43,11 +44,14 @@ ROOT = Path(__file__).parent
 
 
 def choisir_lr(model_name: str, mode: str) -> float:
-    """Learning rate par défaut : plus petit en fine-tuning pour ne pas abîmer les poids ImageNet."""
-    # la baseline part de zéro, il n'y a pas de poids pré-entraînés à préserver
-    if mode == "finetune" and model_name != "baseline":
+    """Learning rate par défaut (prévu pour SGD avec momentum), selon le modèle et le mode."""
+    if model_name == "baseline":
+        # 1e-3 dans le TD CIFAR-10, mais ici la FC reçoit 8*111*111 valeurs au lieu
+        # de 8*15*15 : avec 1e-3 la loss diverge (testé), il faut un pas plus petit
         return 1e-4
-    return 1e-3
+    if mode == "frozen":
+        return 1e-2  # seule la dernière couche apprend
+    return 1e-3  # fine-tuning : plus petit pour ne pas abîmer les poids ImageNet
 
 
 def dossier_sortie(args) -> Path:
@@ -153,9 +157,11 @@ def main():
     parser.add_argument("--mode", default="frozen", choices=["frozen", "finetune"])
     parser.add_argument("--epochs", type=int, default=10)
     parser.add_argument("--lr", type=float, default=None,
-                        help="par défaut 1e-3 (frozen et baseline) ou 1e-4 (finetune)")
-    parser.add_argument("--optimizer", default="adam", choices=["adam", "sgd"],
-                        help="sgd = descente de gradient avec momentum 0.9")
+                        help="par défaut 1e-4 (baseline), 1e-2 (frozen) ou 1e-3 (finetune)")
+    # SGD avec momentum par défaut, comme le "sgdm" des trainingOptions du TD Matlab
+    parser.add_argument("--optimizer", default="sgd", choices=["sgd", "adam"])
+    parser.add_argument("--momentum", type=float, default=0.9, help="momentum de SGD (0.9 comme dans Matlab)")
+    parser.add_argument("--weight-decay", type=float, default=0.0, help="régularisation L2 des poids")
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--subset", type=int, default=None,
                         help="nombre d'images à prendre (train + validation), pour tester vite")
@@ -192,9 +198,10 @@ def main():
     # on ne donne à l'optimiseur que les poids qui ne sont pas gelés
     a_entrainer = [p for p in model.parameters() if p.requires_grad]
     if args.optimizer == "sgd":
-        optimizer = torch.optim.SGD(a_entrainer, lr=args.lr, momentum=0.9)
+        optimizer = torch.optim.SGD(a_entrainer, lr=args.lr, momentum=args.momentum,
+                                    weight_decay=args.weight_decay)
     else:
-        optimizer = torch.optim.Adam(a_entrainer, lr=args.lr)
+        optimizer = torch.optim.Adam(a_entrainer, lr=args.lr, weight_decay=args.weight_decay)
     criterion = nn.CrossEntropyLoss()  # contient déjà la softmax
 
     historique = []

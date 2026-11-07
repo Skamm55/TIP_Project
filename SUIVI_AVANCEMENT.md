@@ -64,15 +64,20 @@ Dernière mise à jour : 7 novembre 2026.
 - `models.py` : correct, test OK (baseline 1,08 M paramètres, MobileNetV2 2,24 M, ResNet-18 11,18 M). Seule modif : suppression de l'ancien en-tête, qui faisait une 2e docstring.
 - `train.py` réécrit pour que la chaîne marche et pour rester au niveau du cours :
   - 2 bugs corrigés : `get_loaders` n'existe pas dans `data.py` (c'est `get_dataloaders`), et sans `--subset` on passait 0 au lieu de `None`, ce qui ne gardait que 2 images par classe ;
-  - options retirées car hors cours ou inutiles : données factices, reprise d'entraînement, précision mixte, weight decay ;
-  - gardé : Adam (ou SGD avec momentum), entropie croisée, meilleur modèle choisi sur le F1 macro de validation, courbes d'apprentissage ;
-  - learning rate par défaut 1e-3, et 1e-4 en fine-tuning pour ne pas abîmer les poids ImageNet ;
+  - options retirées car hors cours ou inutiles : données factices, reprise d'entraînement, précision mixte ;
+  - gardé : entropie croisée, meilleur modèle choisi sur le F1 macro de validation, courbes d'apprentissage ;
   - en mode frozen, les BatchNorm du réseau gelé restent en mode eval (sinon le réseau « gelé » change quand même) ;
   - à la fin, le meilleur modèle est évalué avec `evaluer()` d'`evaluate.py` : `metrics.json`, matrice de confusion, frugalité, `val_predictions.csv` avec le nom des images ;
   - un dossier par configuration (`results/<modèle>_<mode>/`), pour ne plus écraser les résultats.
 - Suppression de `results/run/` : c'était un test fait avec des fausses images et un CNN de secours, pas avec MobileNetV2.
 - Test en petit sur CPU (300 images, 2 époques) : baseline, MobileNetV2 gelé et ResNet-18 fine-tuné tournent jusqu'au bout, et `predict.py` relit le `best.pth` produit.
 - Commandes des 5 configurations ajoutées dans le README.
+- Optimiseur aligné sur le TD : SGD avec momentum 0.9 par défaut (le `sgdm` des `trainingOptions` Matlab), Adam en option, plus `--momentum` et `--weight-decay`. Learning rate par défaut : 1e-4 pour la baseline, 1e-2 en mode frozen, 1e-3 en fine-tuning.
+- Diagnostic de la loss de la baseline (30 à 50 dans le premier test). Sur les 20 premières itérations (300 images, batch 64) :
+  - loss au 1er batch = 2,42, soit ln(11) : l'initialisation et la normalisation des entrées sont correctes ;
+  - SGD lr 1e-3 : 2,42 puis montée jusqu'à 14,7 ; Adam lr 1e-3 : 2,42 puis 39 dès la 2e itération et jusqu'à 60 → divergence due au pas d'apprentissage ;
+  - SGD lr 1e-4 : descente régulière de 2,42 à environ 1,9 ; Adam lr 1e-4 : pic à 4,6 puis descente vers 2,0 ;
+  - explication pour le rapport : la FC de la baseline reçoit 8×111×111 = 98 568 valeurs en 224×224, contre 8×15×15 = 1 800 sur CIFAR-10 dans le TD, donc le lr de 1e-3 du TD est trop fort ici. L'architecture de la baseline n'est pas modifiée.
 
 ### Prochaines tâches
 
