@@ -1,0 +1,20 @@
+{
+  "model": "mobilenetv2",
+  "mode": "finetune",
+  "epochs": 15,
+  "lr": 0.001,
+  "optimizer": "sgd",
+  "momentum": 0.9,
+  "weight_decay": 0.0,
+  "batch_size": 64,
+  "subset": null,
+  "img_size": 224,
+  "no_augment": false,
+  "data_dir": "data/food-11",
+  "out_dir": null,
+  "num_workers": 4,
+  "seed": 42,
+  "meilleure_epoque": 15,
+  "meilleur_f1_val": 0.9252,
+  "duree_min": 11.6
+}
