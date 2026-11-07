@@ -1,0 +1,20 @@
+{
+  "model": "resnet18",
+  "mode": "frozen",
+  "epochs": 10,
+  "lr": 0.01,
+  "optimizer": "sgd",
+  "momentum": 0.9,
+  "weight_decay": 0.0,
+  "batch_size": 64,
+  "subset": null,
+  "img_size": 224,
+  "no_augment": false,
+  "data_dir": "data/food-11",
+  "out_dir": null,
+  "num_workers": 4,
+  "seed": 42,
+  "meilleure_epoque": 10,
+  "meilleur_f1_val": 0.8589,
+  "duree_min": 3.8
+}
