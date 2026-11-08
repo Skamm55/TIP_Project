@@ -173,3 +173,4 @@ Rien de consigné pour l'instant.
 | Maksim | Claude Code         | Écriture du code à partir d'un cahier des charges, tests et vérification des figures                     | `visualize.py`              |
 | Oggy   | Claude Code         | Aide à l'écriture du code (commits co-signés par Claude)                                                 | `evaluate.py`, `predict.py` |
 | Maksim | Claude Code         | Relecture de `models.py` et `train.py`, correction des bugs et réécriture de `train.py`, tests           | `train.py`, `models.py`     |
+| Maksim | Claude, Claude Code | Script d'analyse des runs et rédaction du diagnostic biais / variance à partir des courbes | analyse_entrainement.py, section 4.2 |
