@@ -86,6 +86,55 @@ Dernière mise à jour : 7 novembre 2026.
   - loss de validation minimale à l'époque 12 (1,71) puis remonte au-dessus de 2,2 : surapprentissage bien visible, figure utilisable pour la partie biais / variance.
 - **3.3** Protocole écrit dans `PROTOCOLE_AUGMENTATION.md` : meilleure config en fine-tuning, avec / sans `--no-augment`, 15 époques, seule l'augmentation change. Les commandes de fine-tuning du README sont passées à `--epochs 15` pour que le run de la 3.2 serve de référence.
 
+### Courbes d'apprentissage et diagnostic biais / variance (tâche 4.2)
+
+Figures : `results/figures/f1_validation_runs.png`, `train_vs_val_finetuning.png`, `train_vs_val_gele.png`.
+Synthèse chiffrée : `results/synthese_runs.csv`.
+
+| Run | Acc. train (dernière époque) | Acc. validation | Écart | Diagnostic |
+|---|---|---|---|---|
+| Baseline (TD) | 37,6 % | 36,4 % | 1,2 pt | biais élevé |
+| MobileNetV2 gelé | 84,7 % | 86,2 % | −1,6 pt | biais modéré, pas de variance |
+| ResNet-18 gelé | 85,0 % | 84,6 % | 0,4 pt | biais modéré, pas de variance |
+| MobileNetV2 fine-tuning | 97,8 % | 91,5 % | 6,2 pts | début de variance |
+| ResNet-18 fine-tuning | 97,3 % | 90,5 % | 6,9 pts | début de variance |
+
+Le diagnostic suit la grille du cours (complementary slides, p.25) : un écart faible entre train et
+validation avec des performances basses traduit un biais élevé (sous-apprentissage), un écart important
+traduit une variance élevée (surapprentissage).
+
+**Baseline.** La loss d'entraînement ne descend que de 2,17 à 1,82 en 20 époques, et les accuracies train
+et validation restent proches de 37 %. Le modèle n'apprend même pas correctement ses données d'entraînement :
+c'est un biais élevé. Une seule couche de 8 filtres 3×3 ne suffit pas à distinguer 11 catégories d'aliments.
+Les remèdes proposés par le cours en cas de biais élevé (complementary slides, p.28) sont d'utiliser un réseau
+plus gros ou de changer d'architecture, ce que fait précisément le transfer learning.
+
+**Modèles gelés.** Le F1 de validation plafonne entre 0,86 et 0,87 dès les époques 3 à 8 : entraîner plus
+longtemps n'apporterait presque rien. Il n'y a pas de surapprentissage (écart train / validation négligeable).
+La limite vient des features ImageNet figées, puisque seule la dernière couche est entraînée (14 091 paramètres
+pour MobileNetV2, 5 643 pour ResNet-18). L'accuracy de validation dépasse même légèrement celle du train pour
+MobileNetV2 : l'accuracy train est mesurée pendant l'entraînement, avec l'augmentation de données et le dropout
+actifs, ce qui la pénalise. MobileNetV2 gelé présente un décrochage ponctuel à l'époque 6 (accuracy de
+validation de 0,80, loss de 0,64), signe d'une oscillation de l'apprentissage de la tête avec un learning rate
+de 1e-2 ; le run se stabilise dès l'époque suivante. Le remède est de dégeler le réseau, c'est-à-dire de passer
+au fine-tuning.
+
+**Modèles en fine-tuning.** Ce sont les meilleurs modèles (F1 de validation de 0,9252 pour MobileNetV2 et
+0,9134 pour ResNet-18), mais l'écart train / validation atteint 6 à 7 points. La loss de validation atteint son
+minimum à l'époque 11 pour MobileNetV2 (0,290) et à l'époque 13 pour ResNet-18 (0,303), puis remonte (0,308 et
+0,312 à l'époque 15) alors que la loss d'entraînement continue de baisser : c'est le début du surapprentissage.
+Le F1 progresse encore, mais de seulement 0,005 sur les quatre dernières époques. Le meilleur modèle tombe en
+fin d'entraînement, mais les courbes montrent un plateau et non un modèle inachevé : augmenter le nombre
+d'époques accentuerait surtout la variance. Les remèdes du cours en cas de variance élevée sont l'augmentation
+de données et la régularisation (complementary slides, p.28) ; l'effet de l'augmentation est mesuré dans
+l'étude dédiée (tâche 4.4).
+
+**Temps de calcul.** Une époque de fine-tuning dure environ 42 s pour MobileNetV2 contre 27 s pour ResNet-18,
+alors que MobileNetV2 a cinq fois moins de paramètres (2,24 M contre 11,18 M). Ses convolutions en profondeur
+(depthwise) réduisent le nombre de paramètres mais sont moins efficacement exécutées sur GPU. Le score de
+frugalité du challenge ne compte que les paramètres : un modèle frugal au sens du challenge n'est pas
+forcément le plus rapide à entraîner.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA

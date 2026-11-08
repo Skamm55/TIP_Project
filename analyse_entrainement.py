@@ -100,8 +100,11 @@ def figure_train_vs_val(historiques: dict[str, pd.DataFrame], runs: list[str], n
             ax.axvline(epoque_min, color="black", linestyle=":", linewidth=1)
             ax.grid(alpha=0.3)
             ax.legend()
+        # texte à gauche de la ligne si elle est dans la 2e moitié de l'axe, sinon il serait coupé
+        a_gauche = epoque_min > (h["epoque"].min() + h["epoque"].max()) / 2
         ax_loss.annotate("min loss val", xy=(epoque_min, ax_loss.get_ylim()[1]),
-                         xytext=(4, -14), textcoords="offset points", fontsize=9)
+                         xytext=(-4 if a_gauche else 4, -14), textcoords="offset points",
+                         ha="right" if a_gauche else "left", fontsize=9)
 
     fig.suptitle(titre)
     fig.tight_layout()
