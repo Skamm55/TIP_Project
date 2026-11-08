@@ -233,14 +233,19 @@ def main():
 
         # on sauvegarde à chaque époque pour voir les courbes pendant l'entraînement
         sauver_historique(historique, dossier)
-        tracer_courbes(historique, dossier, f"{args.model} {args.mode}")
+        titre = "baseline (entraînée de zéro)" if args.model == "baseline" else f"{args.model} {args.mode}"
+        tracer_courbes(historique, dossier, titre)
 
     duree = (time.time() - debut) / 60
     print(f"\nMeilleur F1 macro : {meilleur_f1:.4f} à l'époque {meilleure_epoque} ({duree:.1f} min)")
 
+    config = {**vars(args), "meilleure_epoque": meilleure_epoque,
+              "meilleur_f1_val": round(meilleur_f1, 4), "duree_min": round(duree, 1)}
+    if args.model == "baseline":
+        # --mode n'a pas d'effet sur la baseline, on l'écrit pour éviter de croire qu'elle était gelée
+        config["mode"] = "aucun (entraînée de zéro)"
     with open(dossier / "config.json", "w", encoding="utf-8") as f:
-        json.dump({**vars(args), "meilleure_epoque": meilleure_epoque,
-                   "meilleur_f1_val": round(meilleur_f1, 4), "duree_min": round(duree, 1)}, f, indent=2)
+        json.dump(config, f, indent=2, ensure_ascii=False)
 
     # évaluation complète du meilleur modèle avec evaluate.py (métriques par classe,
     # matrice de confusion, frugalité, prédictions image par image)

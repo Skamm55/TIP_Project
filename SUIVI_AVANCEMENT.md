@@ -95,13 +95,44 @@ Dernière mise à jour : 7 novembre 2026.
 
 ## Greg
 
-Rien de consigné pour l'instant.
+Section remplie par Maksim le 7 novembre à partir des commits et des résultats poussés par Greg.
+
+### PC GPU et première version de train.py (tâches 0.4 et 1.6), les 5 et 6 novembre
+
+- **0.4** PC d'entraînement prêt : PyTorch avec CUDA sur la RTX 2000 Ada.
+- **1.6** Première version de `train.py` (boucle d'entraînement, courbes, meilleur modèle selon le F1, checkpoints). Elle a ensuite été corrigée et simplifiée par Maksim le 7 novembre (voir sa section).
+
+### Les 5 entraînements (tâches 3.1 et 3.2), le 7 novembre
+
+- Lancés sur le dataset complet (10 636 images de train, 2 660 de validation), avec les réglages par défaut de `train.py` : SGD momentum 0.9, batch 64, augmentation activée, graine 42.
+- Résultats dans `results/<config>/` :
+
+| Configuration        | Époques | lr   | F1 macro val | Paramètres | Frugalité | Durée    |
+| -------------------- | ------: | ---- | -----------: | ---------: | --------: | -------: |
+| baseline             |      20 | 1e-4 |        0,335 |     1,08 M |     0,179 |  6,6 min |
+| MobileNetV2 frozen   |      10 | 1e-2 |        0,874 |     2,24 M |     0,667 |  4,2 min |
+| ResNet-18 frozen     |      10 | 1e-2 |        0,859 |    11,18 M |     0,584 |  3,8 min |
+| MobileNetV2 finetune |      15 | 1e-3 |        0,925 |     2,24 M |     0,718 | 11,6 min |
+| ResNet-18 finetune   |      15 | 1e-3 |        0,913 |    11,18 M |     0,638 |  7,9 min |
+
+- Meilleure configuration : **MobileNetV2 en fine-tuning**, à la fois sur le F1 et sur la frugalité. ResNet-18 a 5 fois plus de paramètres et fait moins bien dans les deux modes.
+- Premières observations pour le diagnostic biais / variance (tâche 4.2) :
+  - baseline : sous-apprentissage (accuracy train 0,38, validation 0,36 après 20 époques). Lancée sur 20 époques au lieu de 10 parce qu'elle apprend lentement, à noter dans le protocole d'entraînement du rapport (6.3) ;
+  - modes gelés : plafond vers 0,85-0,87 dès l'époque 3, accuracy train un peu sous la validation (effet de l'augmentation), pas de surapprentissage ;
+  - fine-tuning : début de variance. Pour MobileNetV2, accuracy train 0,978 contre 0,915 en validation, loss de validation minimale à l'époque 11 (0,290) puis légère remontée (0,308), alors que le F1 monte encore jusqu'à l'époque 15.
+- Classes les plus faibles du meilleur modèle : `dessert` (0,86), `bread` et `fried` (0,88). Confusions principales : dessert → bread (12), fried → bread (11), dessert → meat (11), fried → meat (10). Les petites classes sont au contraire les mieux reconnues (`rice` 0,99, `noodles-pasta` 0,98).
+
+### Prochaines tâches
+
+- **3.4** run sans augmentation sur la meilleure config :
+  `python train.py --model mobilenetv2 --mode finetune --epochs 15 --no-augment`
+- **4.2** courbes et diagnostic biais / variance des 5 configs
+- **6.3** et **6.5** parties du rapport (protocole d'entraînement, biais / variance)
 
 ### Points à régler
 
-- `train.py` a été réécrit par Maksim le 7 novembre (voir sa section) : à relire avant de lancer les 5 configurations sur ton PC.
-- Lancer les 5 configurations avec les commandes du README, et pousser les dossiers `results/<config>/` (sans les `.pth`).
-- Les deux fine-tuning (3.2) se lancent avec `--epochs 15` : ils servent de référence pour l'étude de l'augmentation (voir `PROTOCOLE_AUGMENTATION.md`).
+- Mettre à jour cette section soi-même aux prochaines séances (consigne du README), et ajouter ses lignes dans le tableau « Usage de l'IA » (pour la première version de `train.py` notamment).
+- Le `results/baseline/config.json` affichait `"mode": "frozen"` (valeur par défaut de `--mode`, sans effet sur la baseline). Corrigé par Maksim : `train.py` écrit maintenant `"aucun (entraînée de zéro)"` pour la baseline, et le fichier existant a été modifié de la même façon (seul ce champ change, pas les résultats).
 
 ## Julien
 
