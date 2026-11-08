@@ -1,0 +1,6 @@
+run,epoques,meilleur_f1_val,epoque_meilleur_f1,acc_train_finale,acc_val_finale,ecart_train_val,epoque_min_loss_val,loss_val_min,loss_val_finale,duree_moyenne_epoque_s
+baseline,20,0.3346,19,0.3757,0.3639,1.2,19,1.8058,1.8463,16.4
+mobilenetv2_frozen,10,0.874,10,0.8467,0.8624,-1.6,10,0.4402,0.4402,17.0
+resnet18_frozen,10,0.8589,10,0.8501,0.8462,0.4,7,0.4881,0.4902,16.9
+mobilenetv2_finetune,15,0.9252,15,0.9775,0.9154,6.2,11,0.2898,0.3076,42.0
+resnet18_finetune,15,0.9134,13,0.9732,0.9045,6.9,13,0.3027,0.3116,27.0
