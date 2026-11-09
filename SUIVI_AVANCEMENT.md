@@ -10,7 +10,7 @@ Dernière mise à jour : 9 novembre 2026.
 ### Cadrage du projet (avant la répartition des tâches)
 
 - Lecture de l'énoncé du challenge et du système de notation de TIP (orga.pdf, p.5) : 40 % rapport de TP + bonus de classe inversée, 55 % projet (livrables et présentation), 5 % score de performance.
-- Analyse du score de frugalité imposé par le leaderboard et réponse à la question de l'énoncé : le réseau de 11,6 M de paramètres doit atteindre un F1 d'environ 0,843 pour égaler celui de 3,5 M (si *R* est compté en millions, à confirmer par le prof).
+- Analyse du score de frugalité imposé par le leaderboard et réponse à la question de l'énoncé : le réseau de 11,6 M de paramètres doit atteindre un F1 d'environ 0,843 pour égaler celui de 3,5 M (*R* est compté en millions, confirmé par le prof).
 - Analyse des supports CVML (lectures et slides complémentaires) et du code Matlab des TD CIFAR-10 et MNIST, pour repérer ce qui pouvait être repris : CNN du TD comme baseline, métriques de la matrice de confusion, courbes d'apprentissage, visualisation des feature maps.
 - Choix techniques :
   - Python et PyTorch plutôt que Matlab, pour travailler à plusieurs avec Git ;

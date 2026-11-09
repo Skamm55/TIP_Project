@@ -71,8 +71,9 @@ Données : 6 runs, évalués sur la même validation (2 660 images, split strati
 
 ## Étape 7 : le choix est-il robuste ? → Oui
 
-- Unité de R (pas encore confirmée par le prof) : avec R en nombre brut, la pénalité vaut environ 0,3 pour
-  tous les modèles et le classement suit le F1. MobileNetV2 en fine-tuning reste premier dans les deux cas.
+- Unité de R : le prof a confirmé que R est compté en millions de paramètres, ce sont donc bien les scores
+  de frugalité calculés ici. Même avec R en nombre brut, la pénalité vaudrait environ 0,3 pour tous les
+  modèles et le classement suivrait le F1 : MobileNetV2 en fine-tuning resterait premier.
 - Une seule graine : les écarts entre MobileNetV2 et ResNet-18 (+0,012 de F1, +0,080 de frugalité) et entre
   fine-tuning et gelé (+0,05 de F1) sont nettement plus grands que la variabilité attendue.
 

@@ -145,8 +145,8 @@ figures non citées sont gardées. Tests refaits ensuite : tous OK, `results/` i
   sur le PC de Maksim et celui de Greg.
 - **`seafood`** : 2,2 % des prédictions sur le test contre 8,5 % sur la validation. À regarder avec le F1
   par classe du serveur (5.2), avant la soumission unique (5.4).
-- **Unité de R** : toujours pas confirmée par le prof. Le choix du modèle n'en dépend pas, mais le score de
-  frugalité annoncé dans le rapport, si.
+- **Unité de R** : réglé, le prof a confirmé que R est en millions de paramètres. Les scores de frugalité
+  de `frugalite.csv` sont donc ceux du challenge.
 - **Rapport et slides** : le squelette (1.11) n'existe pas encore ; 10 pages maximum.
 - **Annexe IA (6.10)** : le tableau de `SUIVI_AVANCEMENT.md` est rempli surtout par Maksim ; Greg et Julien
   n'ont pas ajouté leurs lignes.
