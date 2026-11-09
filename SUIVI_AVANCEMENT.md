@@ -213,10 +213,42 @@ recouvrement entre catégories, si.
 
 **Choix retenu.** Le modèle final est entraîné avec augmentation.
 
+### Interprétation des feature maps et des filtres de la 1re couche (tâche 4.5)
+
+Figures : `results/figures/filters_resnet18.png`, `results/figures/featuremaps_mobilenetv2_classes.png`,
+`results/figures/featuremaps_resnet18_soup_0.png` (produites par `visualize.py`, poids ImageNet).
+
+Une couche de convolution est un ensemble de filtres RIF 2D, chacun spécialisé dans la détection d'une
+structure, d'une orientation ou d'une forme (CVML lectures, p.68). Les 64 filtres 7×7 de la 1re couche
+de ResNet-18 se répartissent en quatre familles :
+- des détecteurs de contours orientés, en niveaux de gris (filtres 8, 10, 20, 41, 42, 44, 59) : bandes
+  claires et sombres dans une direction donnée, équivalent appris des masques de dérivée première de Sobel
+  et Prewitt (MINDS-IMGP-processing, p.21) et des filtres de Gabor orientés (CVML lectures, p.67) ;
+- des taches de couleur uniformes (filtres 9, 13, 16, 33, 52) : un lissage passe-bas comparable au filtre
+  moyenneur (MINDS-IMGP-processing, p.16), sensible à une teinte particulière ;
+- des filtres à opposition de couleurs (filtres 5, 15, 23, 32), qui réagissent à une transition entre
+  deux couleurs, par exemple orange et bleu ;
+- des détecteurs de points (filtres 24, 39, 47, 53), sensibles aux petits détails et aux textures fines.
+
+Les feature maps de MobileNetV2 sur six classes confirment ces rôles. Les canaux 4, 5, 7 et 19 produisent
+un effet de relief caractéristique d'une dérivée directionnelle : ils font ressortir les contours des
+assiettes, des bols et du pain. Les canaux 15 et 25 isolent les zones rouge-orange, comme le saumon
+(`seafood`) ou la fraise (`dessert`). Pour `rice`, les canaux de contours répondent uniformément sur toute
+l'image, couverte d'une texture fine et régulière de grains : cette homogénéité explique le F1 de 0,987 de
+la classe malgré son faible effectif. Pour `soup`, la réponse est presque plate à l'intérieur du bol et
+marquée par un contour circulaire net, ce qui en fait aussi une classe facile.
+
+L'image `soup/0.jpg` montre enfin une limite du dataset : il s'agit de la photo d'un emballage de soupe,
+et plusieurs canaux de ResNet-18 (42, 51, 60) réagissent surtout au texte et au logo plutôt qu'à l'aliment.
+
+**Conclusion.** La 1re couche détecte des motifs génériques (contours, couleurs, textures), communs à
+toutes les images naturelles, et non des aliments. C'est ce qui justifie de réutiliser ces couches telles
+quelles depuis ImageNet : le cours recommande de « garder les premières couches qui détectent les features
+simples » et de ne réentraîner que les couches de sortie (CVML lectures, p.83).
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
-- **4.5** interprétation des feature maps (les figures sont prêtes)
 - vérifier avec Greg qu'il comprend la nouvelle version de `train.py` avant les vrais runs
 
 ## Greg
@@ -390,4 +422,5 @@ sans donner leur proportion exacte sur les 225.
 | Maksim | Claude Code         | Comparaison des runs avec / sans augmentation, mise à jour du suivi de Greg et du protocole              | suivi 3.4, protocole 3.3    |
 | Maksim | Claude, Claude Code | Script de frugalité, figure d'iso-frugalité et rédaction de l'analyse | frugalite.py, section 4.1 |
 | Maksim | Claude, Claude Code | Figures et rédaction de l'étude de l'augmentation à partir des résultats | analyse_entrainement.py, section 4.4 |
+| Maksim | Claude | Aide à l'interprétation des feature maps et des filtres, relue et vérifiée sur les figures | section 4.5 |
 | Oggy   | Claude Code         | Script d'analyse des erreurs, choix des images mal classées et rédaction des commentaires | analyse_erreurs.py, section 4.3 |
