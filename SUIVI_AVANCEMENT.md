@@ -246,6 +246,12 @@ toutes les images naturelles, et non des aliments. C'est ce qui justifie de réu
 quelles depuis ImageNet : le cours recommande de « garder les premières couches qui détectent les features
 simples » et de ne réentraîner que les couches de sortie (CVML lectures, p.83).
 
+### Choix du modèle final (tâche 4.6)
+
+Compte rendu complet, justifié étape par étape : `DECISION_MODELE_FINAL.md`.
+Décision : MobileNetV2 pré-entraîné sur ImageNet, en fine-tuning complet, avec augmentation de données
+(F1 macro de validation 0,925, frugalité 0,718), poids `checkpoints/mobilenetv2_finetune_best.pth`.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
@@ -423,4 +429,5 @@ sans donner leur proportion exacte sur les 225.
 | Maksim | Claude, Claude Code | Script de frugalité, figure d'iso-frugalité et rédaction de l'analyse | frugalite.py, section 4.1 |
 | Maksim | Claude, Claude Code | Figures et rédaction de l'étude de l'augmentation à partir des résultats | analyse_entrainement.py, section 4.4 |
 | Maksim | Claude | Aide à l'interprétation des feature maps et des filtres, relue et vérifiée sur les figures | section 4.5 |
+| Maksim | Claude, Claude Code | Rédaction du compte rendu de choix du modèle final à partir des analyses 4.1 à 4.5 | DECISION_MODELE_FINAL.md |
 | Oggy   | Claude Code         | Script d'analyse des erreurs, choix des images mal classées et rédaction des commentaires | analyse_erreurs.py, section 4.3 |
