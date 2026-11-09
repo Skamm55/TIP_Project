@@ -5,17 +5,28 @@ Le but est d'avoir un bon F1 macro tout en gardant un modèle léger (peu de par
 
 ## Fichiers
 
-| Fichier        | Rôle                                           | Qui    |
-| -------------- | ---------------------------------------------- | ------ |
-| `data.py`      | chargement des données, split, transformations | Maksim |
-| `models.py`    | baseline du TD, MobileNetV2, ResNet-18         | Julien |
-| `train.py`     | entraînement                                   | Greg   |
-| `evaluate.py`  | F1, matrice de confusion, frugalité            | Oggy   |
-| `predict.py`   | JSON des prédictions sur le test               | Oggy   |
-| `visualize.py` | feature maps                                   | Maksim |
-| `results/`     | métriques et petites figures                   | tous   |
+| Fichier                   | Rôle                                                       | Qui    |
+| ------------------------- | ---------------------------------------------------------- | ------ |
+| `data.py`                 | chargement des données, split, transformations             | Maksim |
+| `models.py`               | baseline du TD, MobileNetV2, ResNet-18                     | Julien |
+| `train.py`                | entraînement                                               | Greg   |
+| `evaluate.py`             | F1, matrice de confusion, frugalité                        | Oggy   |
+| `predict.py`              | JSON des prédictions sur le test                           | Oggy   |
+| `visualize.py`            | feature maps et filtres de la 1re couche                   | Maksim |
+| `analyse_entrainement.py` | courbes, biais / variance, étude de l'augmentation         | Maksim |
+| `frugalite.py`            | tableau de frugalité et figure F1 / paramètres             | Maksim |
+| `analyse_erreurs.py`      | matrice de confusion et erreurs du meilleur modèle         | Oggy   |
+| `results/`                | métriques des runs, tableaux et figures                    | tous   |
 
-Pour l'analyse du dataset, voir `DATA.md`. Pour l'étude de l'augmentation, voir `PROTOCOLE_AUGMENTATION.md`.
+Les documents :
+
+| Fichier                     | Contenu                                                     |
+| --------------------------- | ----------------------------------------------------------- |
+| `DATA.md`                   | analyse du dataset et normalisation                         |
+| `PROTOCOLE_AUGMENTATION.md` | protocole de l'étude avec / sans augmentation               |
+| `DECISION_MODELE_FINAL.md`  | choix du modèle soumis, justifié étape par étape            |
+| `SUIVI_AVANCEMENT.md`       | journal de chacun et tableau d'usage de l'IA                |
+| `RAPPORT_REVUE.md`          | revue globale du projet du 9 novembre                       |
 
 ## Installation
 
@@ -34,11 +45,22 @@ Le dossier `data/` ne doit jamais aller sur Git.
 
 ## Commandes
 
-Test rapide de toute la chaîne (sur CPU, quelques minutes) :
+Tests sans dataset (quelques secondes, rien à télécharger) :
 
 ```bash
-python train.py --model mobilenetv2 --mode frozen --subset 300 --epochs 1
+python models.py              # les 6 modèles donnent une sortie de taille (2, 11)
+python evaluate.py            # F1, frugalité (exemples de l'énoncé), export des fichiers
+python predict.py --self-test # format du JSON
 ```
+
+Avec le dataset, vérification du chargement puis test rapide de toute la chaîne (sur CPU, quelques minutes) :
+
+```bash
+python data.py --subset 300
+python train.py --model mobilenetv2 --mode frozen --subset 300 --epochs 1 --out-dir results/test_chaine
+```
+
+Le test écrit dans `results/test_chaine/`, qu'on peut supprimer ensuite.
 
 Les 5 configurations (sur le PC de Greg) :
 
@@ -70,13 +92,30 @@ Pour la baseline, le TD utilisait 1e-3, mais sur des images 224×224 la couche F
 beaucoup plus grosse (8×111×111 entrées au lieu de 8×15×15) et la loss diverge avec 1e-3.
 On peut tout changer avec `--lr`, `--optimizer adam`, `--momentum` et `--weight-decay`.
 
-JSON pour le serveur, à partir d'un modèle entraîné :
+Analyses, à partir des fichiers de `results/` (pas besoin des poids ni du GPU) :
 
 ```bash
-python predict.py --model mobilenetv2 --mode frozen --weights results/mobilenetv2_frozen/best.pth
+python analyse_entrainement.py   # courbes, synthese_runs.csv, figures avec / sans augmentation
+python frugalite.py              # frugalite.csv et f1_vs_parametres.png
+python analyse_erreurs.py        # matrice de confusion et scores par classe du modèle final
 ```
 
-Feature maps : `python visualize.py --model mobilenetv2` (voir `python visualize.py -h`).
+Données et feature maps (dataset nécessaire, poids ImageNet téléchargés au 1er lancement) :
+
+```bash
+python data.py --plot-counts --samples --sizes --stats       # chiffres et figures de DATA.md
+python visualize.py --model resnet18 --filters               # filtres de la 1re couche
+python visualize.py --classes bread dessert meat seafood soup rice
+```
+
+JSON pour le serveur, avec le modèle final (MobileNetV2 en fine-tuning, voir `DECISION_MODELE_FINAL.md`) :
+
+```bash
+python predict.py --model mobilenetv2 --mode finetune --weights results/mobilenetv2_finetune/best.pth
+```
+
+Le JSON est écrit dans `results/predictions.json`. Les poids (`best.pth`) ne sont pas sur Git : il faut
+les récupérer auprès de Greg ou de Maksim et les mettre dans le dossier du run.
 
 ## Suivi des tâches
 

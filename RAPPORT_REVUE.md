@@ -67,7 +67,11 @@ poids `results/mobilenetv2_finetune/best.pth` (époque 15, pas sur Git).
 
 Aucun lien mort : tous les fichiers et figures cités dans les `.md` existent.
 
-Écarts relevés, non corrigés :
+Mise à jour : les six écarts du tableau ci-dessous ont été corrigés ensuite (commit « revue : incohérences
+corrigées… »), et le README a été mis à jour (fichiers, documents, tests sans dataset, analyses, commande
+du JSON final). Reste la section de Julien dans `SUIVI_AVANCEMENT.md`, à remplir par lui.
+
+Écarts relevés :
 
 | Où                                              | Écrit                                        | Valeur dans `results/`                                      |
 | ----------------------------------------------- | -------------------------------------------- | ----------------------------------------------------------- |
