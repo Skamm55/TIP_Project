@@ -90,7 +90,7 @@ Données : 6 runs, évalués sur la même validation (2 660 images, split strati
 
 | Élément | Valeur |
 |---|---|
-| Poids | `checkpoints/mobilenetv2_finetune_best.pth` (époque 15) |
+| Poids | `results/mobilenetv2_finetune/best.pth` (époque 15) |
 | Paramètres | 2 237 963 (tête à 11 classes : 14 091) |
 | Entraînement | SGD avec momentum 0,9, learning rate 1e-3, 15 époques, batch de 64, graine 42 |
 | Augmentation | `RandomResizedCrop(224, scale=(0.5, 1.0))` + flip horizontal, normalisation ImageNet |
@@ -101,7 +101,7 @@ Données : 6 runs, évalués sur la même validation (2 660 images, split strati
 
 | Tâche | Qui | Action |
 |---|---|---|
-| 5.1 | Maksim | `python predict.py --model mobilenetv2 --mode finetune --weights checkpoints/mobilenetv2_finetune_best.pth --out results/predictions.json`, noter la commande et vérifier la répartition des classes |
+| 5.1 | Maksim | `python predict.py --model mobilenetv2 --mode finetune --weights results/mobilenetv2_finetune/best.pth --out results/predictions.json`, noter la commande et vérifier la répartition des classes |
 | 5.2 | Oggy | Évaluer le JSON sur le serveur sans cocher le leaderboard, relever le F1 global et par classe (surtout `seafood`) |
 | 5.3 | Julien | Description de la méthode, sur le modèle de la baseline du prof, à partir du tableau de la décision finale |
 | 5.4 | Oggy | Soumission finale unique, après feu vert du groupe |

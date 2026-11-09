@@ -250,7 +250,7 @@ simples » et de ne réentraîner que les couches de sortie (CVML lectures, p.83
 
 Compte rendu complet, justifié étape par étape : `DECISION_MODELE_FINAL.md`.
 Décision : MobileNetV2 pré-entraîné sur ImageNet, en fine-tuning complet, avec augmentation de données
-(F1 macro de validation 0,925, frugalité 0,718), poids `checkpoints/mobilenetv2_finetune_best.pth`.
+(F1 macro de validation 0,925, frugalité 0,718), poids `results/mobilenetv2_finetune/best.pth`.
 
 ### Prochaines tâches
 
