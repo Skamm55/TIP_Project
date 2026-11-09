@@ -3,7 +3,7 @@
 Journal de ce qui a été fait sur le projet Food-11, par personne et par tâche.
 Les numéros de tâche renvoient à la page de suivi « Projet Food-11 ».
 
-Dernière mise à jour : 7 novembre 2026.
+Dernière mise à jour : 9 novembre 2026.
 
 ## Maksim
 
@@ -139,12 +139,11 @@ forcément le plus rapide à entraîner.
 
 - **1.11** squelette du rapport et journal IA
 - **4.5** interprétation des feature maps (les figures sont prêtes)
-- envoyer à Greg la commande de la 3.4 une fois la meilleure config de la 3.2 connue
 - vérifier avec Greg qu'il comprend la nouvelle version de `train.py` avant les vrais runs
 
 ## Greg
 
-Section remplie par Maksim le 7 novembre à partir des commits et des résultats poussés par Greg.
+Section remplie par Maksim les 7 et 9 novembre à partir des commits et des résultats poussés par Greg.
 
 ### PC GPU et première version de train.py (tâches 0.4 et 1.6), les 5 et 6 novembre
 
@@ -171,11 +170,26 @@ Section remplie par Maksim le 7 novembre à partir des commits et des résultats
   - fine-tuning : début de variance. Pour MobileNetV2, accuracy train 0,978 contre 0,915 en validation, loss de validation minimale à l'époque 11 (0,290) puis légère remontée (0,308), alors que le F1 monte encore jusqu'à l'époque 15.
 - Classes les plus faibles du meilleur modèle : `dessert` (0,86), `bread` et `fried` (0,88). Confusions principales : dessert → bread (12), fried → bread (11), dessert → meat (11), fried → meat (10). Les petites classes sont au contraire les mieux reconnues (`rice` 0,99, `noodles-pasta` 0,98).
 
+### Run sans augmentation (tâche 3.4), le 8 novembre
+
+- `python train.py --model mobilenetv2 --mode finetune --epochs 15 --no-augment`, résultats dans `results/mobilenetv2_finetune_noaug/`.
+- Mêmes réglages que le run avec augmentation de la 3.2 (vérifié dans les deux `config.json`, seul `no_augment` change), comme prévu dans `PROTOCOLE_AUGMENTATION.md`.
+
+| MobileNetV2 finetune             | Avec augmentation | Sans augmentation |
+| -------------------------------- | ----------------: | ----------------: |
+| Meilleur F1 macro val (époque)   |        0,925 (15) |        0,911 (11) |
+| Accuracy train, dernière époque  |            97,8 % |           99,96 % |
+| Accuracy val, dernière époque    |            91,5 % |            89,9 % |
+| Loss val minimale (époque)       |        0,290 (11) |         0,341 (6) |
+| Loss val, dernière époque        |             0,308 |             0,366 |
+| Frugalité                        |             0,718 |             0,703 |
+
+- Sans augmentation, le train est appris presque par cœur (99,6 % dès l'époque 9) et la loss de validation ne baisse plus après l'époque 6, alors qu'avec augmentation le F1 monte encore à l'époque 15.
+- Par classe, la plus forte baisse est sur `dairy` (0,912 → 0,858) puis `egg` (0,920 → 0,882). `rice` (0,987) et `noodles-pasta` (0,983 → 0,974) bougent peu.
+- L'analyse détaillée est à faire dans la tâche 4.4.
+
 ### Prochaines tâches
 
-- **3.4** run sans augmentation sur la meilleure config :
-  `python train.py --model mobilenetv2 --mode finetune --epochs 15 --no-augment`
-- **4.2** courbes et diagnostic biais / variance des 5 configs
 - **6.3** et **6.5** parties du rapport (protocole d'entraînement, biais / variance)
 
 ### Points à régler
@@ -223,3 +237,4 @@ Rien de consigné pour l'instant.
 | Oggy   | Claude Code         | Aide à l'écriture du code (commits co-signés par Claude)                                                 | `evaluate.py`, `predict.py` |
 | Maksim | Claude Code         | Relecture de `models.py` et `train.py`, correction des bugs et réécriture de `train.py`, tests           | `train.py`, `models.py`     |
 | Maksim | Claude, Claude Code | Script d'analyse des runs et rédaction du diagnostic biais / variance à partir des courbes | analyse_entrainement.py, section 4.2 |
+| Maksim | Claude Code         | Comparaison des runs avec / sans augmentation, mise à jour du suivi de Greg et du protocole              | suivi 3.4, protocole 3.3    |

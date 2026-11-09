@@ -8,8 +8,8 @@ L'augmentation est le remède proposé en cas de variance élevée, c'est-à-dir
 
 ## Configuration étudiée
 
-La meilleure configuration en fine-tuning à l'issue de la tâche 3.2 (MobileNetV2 ou ResNet-18,
-selon le F1 macro de validation) : *à compléter après la 3.2*.
+La meilleure configuration en fine-tuning à l'issue de la tâche 3.2, choisie sur le F1 macro de
+validation : **MobileNetV2 en fine-tuning** (F1 0,925, contre 0,913 pour ResNet-18).
 
 On choisit le fine-tuning plutôt que le mode gelé parce que plusieurs millions de paramètres y sont
 entraînés, contre 14 091 (MobileNetV2) ou 5 643 (ResNet-18) en mode gelé : c'est en fine-tuning que
@@ -56,13 +56,13 @@ Une seule graine est utilisée. Un écart de F1 de l'ordre de 0,01 peut venir du
 seul un écart net, cohérent avec les courbes d'apprentissage, sera interprété.
 Les petites classes n'ont que 75 à 117 images de validation, donc leur F1 bouge facilement.
 
-## Commandes pour Greg
+## Commandes
 
-Le run avec augmentation est celui de la 3.2 (il doit être lancé avec `--epochs 15`).
-Le run sans augmentation, après la 3.2 (exemple si ResNet-18 l'emporte) :
+Le run avec augmentation est celui de la 3.2 (lancé avec `--epochs 15`).
+Le run sans augmentation (tâche 3.4, fait par Greg le 8 novembre) :
 
 ```bash
-python train.py --model resnet18 --mode finetune --epochs 15 --no-augment
+python train.py --model mobilenetv2 --mode finetune --epochs 15 --no-augment
 ```
 
-Les résultats vont dans `results/resnet18_finetune_noaug/`, à côté de `results/resnet18_finetune/`.
+Les résultats sont dans `results/mobilenetv2_finetune_noaug/`, à côté de `results/mobilenetv2_finetune/`.
