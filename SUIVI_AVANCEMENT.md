@@ -260,6 +260,78 @@ Rien de consigné pour l'instant.
   - accepte des poids enregistrés seuls ou dans un checkpoint (sous la clé `"model"`) ;
   - auto-test sans dataset (`python predict.py --self-test`) : 4 tests, tous OK.
 
+### Confusion et analyse des erreurs (tâche 4.3), le 9 novembre
+
+Script : `analyse_erreurs.py`, calculé uniquement depuis `results/mobilenetv2_finetune/val_predictions.csv`
+(modèle final choisi en 4.1). Figures : `results/figures/confusion_mobilenetv2_finetune.png`,
+`f1_par_classe_mobilenetv2_finetune.png` et `erreurs_mobilenetv2_finetune.png`.
+
+**225 erreurs sur 2 660 images de validation (8,5 %).**
+
+| Classe | Précision | Rappel | F1 | Images |
+|---|---|---|---|---|
+| dessert | 0,881 | 0,848 | 0,864 | 400 |
+| bread | 0,851 | 0,908 | 0,879 | 271 |
+| fried | 0,910 | 0,855 | 0,882 | 235 |
+| dairy | 0,920 | 0,904 | 0,912 | 115 |
+| meat | 0,899 | 0,932 | 0,916 | 355 |
+| egg | 0,920 | 0,920 | 0,920 | 263 |
+| seafood | 0,952 | 0,896 | 0,923 | 241 |
+| soup | 0,939 | 0,955 | 0,947 | 400 |
+| vegetable-fruit | 0,949 | 0,984 | 0,966 | 188 |
+| noodles-pasta | 0,983 | 0,983 | 0,983 | 117 |
+| rice | 0,987 | 0,987 | 0,987 | 75 |
+
+**Les erreurs se concentrent sur quatre classes : dessert, bread, fried et meat.** Ce sont les F1 les plus
+bas, et les confusions les plus fréquentes se font entre elles : dessert → bread (12), fried → bread (11),
+dessert → meat (11), fried → meat (10). Ces classes partagent des couleurs et des textures (doré, brun,
+grillé) et dessert est la classe la plus variée (gâteaux, glaces, crèmes, tartes). On retrouve les paires
+repérées dans `DATA.md` (fried / meat, bread / meat, dairy / dessert).
+
+**Le déséquilibre n'explique pas les erreurs.** rice, la plus petite classe (75 images en validation, 376 au
+total), a le meilleur F1 (0,987), et noodles-pasta suit (0,983). Ces classes ont un aspect très typique. À
+l'inverse, dessert et bread font partie des classes les plus fournies et sont les moins bien reconnues.
+
+**bread sert de classe « refuge ».** Sa précision (0,851) est nettement plus basse que son rappel (0,908) : le
+modèle répond bread trop souvent, en particulier pour des plats dorés ou grillés.
+
+**Le modèle est souvent trop sûr de lui.** La confiance moyenne est de 0,96 sur les bonnes réponses et de 0,77
+sur les erreurs, mais 85 des 225 erreurs ont une confiance supérieure à 90 %. La confiance aide à repérer les
+cas douteux, sans être fiable pour autant.
+
+**Six erreurs commentées** (`erreurs_mobilenetv2_finetune.png`) :
+
+| Image | Vraie → prédite (confiance) | Commentaire |
+|---|---|---|
+| meat/579.jpg | meat → bread (100 %) | Sandwich au pain grillé : le pain occupe presque toute l'image et la viande n'apparaît qu'en fine couche. Plusieurs aliments, la prédiction est défendable. |
+| fried/705.jpg | fried → meat (100 %) | Poisson pané avec des frites : c'est à la fois du frit et du poisson. Les classes du dataset se recouvrent (mode de cuisson contre type d'aliment). |
+| dairy/538.jpg | dairy → dessert (100 %) | Crème fouettée en pot, présentée comme un dessert. Classes proches : un produit laitier sucré ressemble à un dessert. |
+| fried/225.jpg | fried → dessert (100 %) | Churro trempé dans du chocolat : c'est un aliment frit, mais aussi un dessert. L'étiquette est discutable, la prédiction aussi juste que la vérité. |
+| dessert/532.jpg | dessert → seafood (100 %) | Bacs de glace au chocolat dans une vitrine en inox. Vraie erreur du modèle, sur une vue inhabituelle (vitrine, pas d'assiette), avec une confiance maximale. |
+| bread/465.jpg | bread → dessert (35 %) | Burger, frites et coleslaw : plusieurs aliments et une étiquette peu évidente (pain, viande ou frit ?). Ici le modèle hésite, ce qui est le comportement attendu. |
+
+**Hypothèses sur la vraie erreur (dessert → seafood).** Le modèle fait 6 fois cette erreur (dessert/82, 216,
+318, 532, 1062, 1092). En regardant les six images :
+- trois ont une feuille de menthe en décoration (82, 216, 1092), comme les herbes qu'on met souvent sur le
+  poisson ; la tarte aux pommes (318) a des tranches orange et brillantes qui ressemblent à du saumon ou à des
+  crevettes ;
+- le modèle s'appuierait donc sur des indices de présentation (décoration verte, couleur orange, sauce
+  nappée) plutôt que sur l'aliment lui-même ;
+- pour dessert/532, la vue est inhabituelle : des bacs en inox dans une vitrine, sans assiette. Les desserts
+  du train sont surtout photographiés à l'assiette, le modèle a probablement vu peu d'images de ce type.
+  Le piment vert posé sur la glace peut aussi jouer.
+
+Ce sont des hypothèses faites à l'œil, non vérifiées : il faudrait compter les images de vitrine dans le
+train ou afficher les zones de l'image qui font décider le modèle (Grad-CAM) pour les confirmer. Le niveau de
+confiance va dans le même sens : 5 des 6 erreurs sont hésitantes (40 à 82 %), seule la vitrine est à 100 %.
+
+**Conclusion.** Sur ces six erreurs, une seule est une vraie erreur de reconnaissance (dessert/532). Les cinq
+autres viennent du dataset lui-même : une seule étiquette par image alors que l'assiette contient plusieurs
+aliments, et des catégories qui se recouvrent (fried est un mode de cuisson, les autres sont des types
+d'aliments). Une partie des 8,5 % d'erreurs n'est donc pas corrigeable par un meilleur réseau. Ces six images
+ont été choisies parmi les erreurs les plus sûres et les plus hésitantes : elles illustrent les types d'erreurs,
+sans donner leur proportion exacte sur les 225.
+
 ### Points à caler avec les autres
 
 - Greg (`train.py`) : le checkpoint doit contenir les poids sous la clé `"model"` (ou être un state_dict seul), sinon `predict.py` ne pourra pas le relire.
@@ -279,3 +351,4 @@ Rien de consigné pour l'instant.
 | Maksim | Claude, Claude Code | Script d'analyse des runs et rédaction du diagnostic biais / variance à partir des courbes | analyse_entrainement.py, section 4.2 |
 | Maksim | Claude Code         | Comparaison des runs avec / sans augmentation, mise à jour du suivi de Greg et du protocole              | suivi 3.4, protocole 3.3    |
 | Maksim | Claude, Claude Code | Script de frugalité, figure d'iso-frugalité et rédaction de l'analyse | frugalite.py, section 4.1 |
+| Oggy   | Claude Code         | Script d'analyse des erreurs, choix des images mal classées et rédaction des commentaires | analyse_erreurs.py, section 4.3 |
