@@ -109,7 +109,7 @@ c'est un biais élevé. Une seule couche de 8 filtres 3×3 ne suffit pas à dist
 Les remèdes proposés par le cours en cas de biais élevé (complementary slides, p.28) sont d'utiliser un réseau
 plus gros ou de changer d'architecture, ce que fait précisément le transfer learning.
 
-**Modèles gelés.** Le F1 de validation plafonne entre 0,86 et 0,87 dès les époques 3 à 8 : entraîner plus
+**Modèles gelés.** Le F1 de validation plafonne entre 0,85 et 0,87 dès les époques 3 à 8 : entraîner plus
 longtemps n'apporterait presque rien. Il n'y a pas de surapprentissage (écart train / validation négligeable).
 La limite vient des features ImageNet figées, puisque seule la dernière couche est entraînée (14 091 paramètres
 pour MobileNetV2, 5 643 pour ResNet-18). L'accuracy de validation dépasse même légèrement celle du train pour
@@ -123,7 +123,7 @@ au fine-tuning.
 0,9134 pour ResNet-18), mais l'écart train / validation atteint 6 à 7 points. La loss de validation atteint son
 minimum à l'époque 11 pour MobileNetV2 (0,290) et à l'époque 13 pour ResNet-18 (0,303), puis remonte (0,308 et
 0,312 à l'époque 15) alors que la loss d'entraînement continue de baisser : c'est le début du surapprentissage.
-Le F1 progresse encore, mais de seulement 0,005 sur les quatre dernières époques. Le meilleur modèle tombe en
+Le F1 progresse encore, mais de seulement 0,005 à 0,007 sur les quatre dernières époques. Le meilleur modèle tombe en
 fin d'entraînement, mais les courbes montrent un plateau et non un modèle inachevé : augmenter le nombre
 d'époques accentuerait surtout la variance. Les remèdes du cours en cas de variance élevée sont l'augmentation
 de données et la régularisation (complementary slides, p.28) ; l'effet de l'augmentation est mesuré dans
@@ -204,7 +204,7 @@ que partiellement vérifiée. `dairy` est la classe la plus pénalisée (F1 de 0
 parce que 13 images de `dessert` sont prédites `dairy` : c'est précisément la paire de classes proches
 repérée lors de l'analyse exploratoire. `egg`, classe de taille moyenne mais visuellement très
 diverse (œufs durs, omelettes, œufs au plat), baisse aussi (0,920 à 0,882). En revanche `rice` et
-`noodles-pasta`, petites mais très homogènes, restent presque parfaites (F1 de 0,98 à 0,99) avec ou
+`noodles-pasta`, petites mais très homogènes, restent presque parfaites (F1 de 0,97 à 0,99) avec ou
 sans augmentation. `soup` est la seule classe en légère hausse (0,947 à 0,955), dans la marge du hasard.
 L'augmentation aide donc surtout les classes visuellement hétérogènes ou proches d'une autre classe,
 davantage que les classes simplement peu nombreuses. Ce constat rejoint l'analyse des erreurs du modèle
@@ -273,9 +273,9 @@ Section remplie par Maksim les 7 et 9 novembre à partir des commits et des rés
 
 | Configuration        | Époques | lr   | F1 macro val | Paramètres | Frugalité | Durée    |
 | -------------------- | ------: | ---- | -----------: | ---------: | --------: | -------: |
-| baseline             |      20 | 1e-4 |        0,335 |     1,08 M |     0,179 |  6,6 min |
+| baseline             |      20 | 1e-4 |        0,335 |     1,08 M |     0,178 |  6,6 min |
 | MobileNetV2 frozen   |      10 | 1e-2 |        0,874 |     2,24 M |     0,667 |  4,2 min |
-| ResNet-18 frozen     |      10 | 1e-2 |        0,859 |    11,18 M |     0,584 |  3,8 min |
+| ResNet-18 frozen     |      10 | 1e-2 |        0,859 |    11,18 M |     0,583 |  3,8 min |
 | MobileNetV2 finetune |      15 | 1e-3 |        0,925 |     2,24 M |     0,718 | 11,6 min |
 | ResNet-18 finetune   |      15 | 1e-3 |        0,913 |    11,18 M |     0,638 |  7,9 min |
 

@@ -65,7 +65,7 @@ On a quand même gardé la normalisation ImageNet partout. Les réseaux pré-ent
 
 ![Exemples par classe](results/figures/samples_per_class.png)
 
-Classes qui risquent d'être confondues (à vérifier avec la matrice de confusion, tâche 4.4) :
+Classes qui risquent d'être confondues (à vérifier avec la matrice de confusion, tâches 4.3 et 4.4) :
 - meat et seafood : certains filets de saumon ressemblent beaucoup à de la viande
 - fried, meat et seafood : poulet frit, poisson pané... le mode de cuisson et l'aliment se mélangent
 - bread, meat et fried : bread contient des burgers, des pizzas et des wraps, souvent avec des frites

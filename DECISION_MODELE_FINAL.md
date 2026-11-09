@@ -56,7 +56,7 @@ Données : 6 runs, évalués sur la même validation (2 660 images, split strati
 ## Étape 5 : quel point de l'entraînement garder ? → Le meilleur F1 de validation, époque 15
 
 - `train.py` garde automatiquement le modèle au meilleur F1 macro de validation, la métrique du serveur.
-- Le meilleur F1 tombe à la dernière époque, mais les courbes montrent un plateau (+0,005 sur les
+- Le meilleur F1 tombe à la dernière époque, mais les courbes montrent un plateau (+0,007 sur les
   4 dernières époques) : relancer plus longtemps accentuerait surtout le surapprentissage (4.2).
 - La loss de validation atteint son minimum à l'époque 11, mais le critère du challenge est le F1.
 
@@ -80,8 +80,9 @@ Données : 6 runs, évalués sur la même validation (2 660 images, split strati
 
 - Tous ces scores sont mesurés en validation ; le score officiel sera calculé par le serveur sur le test.
 - L'essai de JSON du 9 novembre ne prédisait que 2,2 % de `seafood` sur le test, contre 8,5 % en validation :
-  regénérer le JSON avec le bon fichier de poids, puis regarder le F1 par classe renvoyé par le serveur (5.2)
-  avant la soumission finale.
+  l'essai utilisait déjà `results/mobilenetv2_finetune/best.pth`, l'écart ne vient donc pas des poids.
+  Regénérer le JSON (5.1), puis regarder le F1 par classe renvoyé par le serveur (5.2) avant la soumission
+  finale.
 - La case « update leaderboard » ne doit être cochée qu'une seule fois.
 
 ## Décision finale
