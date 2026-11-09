@@ -1,0 +1,7 @@
+run,f1_val,n_params,R_millions,penalite,frugalite,rang_frugalite,rang_f1,frugalite_R_brut,rang_R_brut
+baseline,0.3346,1084499,1.0845,0.1561,0.1785,6,6,0.0346,6
+mobilenetv2_frozen,0.874,2237963,2.238,0.2073,0.6667,3,4,0.574,4
+resnet18_frozen,0.8589,11182155,11.1822,0.2754,0.5835,5,5,0.5589,5
+mobilenetv2_finetune,0.9252,2237963,2.238,0.2073,0.7179,1,1,0.6252,1
+resnet18_finetune,0.9134,11182155,11.1822,0.2754,0.638,4,2,0.6134,2
+mobilenetv2_finetune_noaug,0.9108,2237963,2.238,0.2073,0.7035,2,3,0.6108,3

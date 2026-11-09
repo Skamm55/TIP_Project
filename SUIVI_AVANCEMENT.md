@@ -135,6 +135,46 @@ alors que MobileNetV2 a cinq fois moins de paramètres (2,24 M contre 11,18 M). 
 frugalité du challenge ne compte que les paramètres : un modèle frugal au sens du challenge n'est pas
 forcément le plus rapide à entraîner.
 
+### Tableau de frugalité et choix du modèle final (tâche 4.1)
+
+Script : `frugalite.py`. Résultats : `results/frugalite.csv`, figure `results/figures/f1_vs_parametres.png`.
+
+Score de frugalité du challenge : Frug = F1 − w·R / (R + 1), avec w = 0,3 et R le nombre de paramètres
+en millions. Exemple pour MobileNetV2 en fine-tuning : R = 2,238, pénalité = 0,3 × 2,238 / 3,238 = 0,207,
+Frug = 0,9252 − 0,207 = 0,718.
+
+| Run | F1 validation | Paramètres | Pénalité | Frugalité |
+|---|---|---|---|---|
+| Baseline (TD) | 0,3346 | 1,08 M | 0,156 | 0,178 |
+| MobileNetV2 gelé | 0,8740 | 2,24 M | 0,207 | 0,667 |
+| ResNet-18 gelé | 0,8589 | 11,18 M | 0,275 | 0,583 |
+| **MobileNetV2 fine-tuning** | **0,9252** | **2,24 M** | **0,207** | **0,718** |
+| ResNet-18 fine-tuning | 0,9134 | 11,18 M | 0,275 | 0,638 |
+| MobileNetV2 fine-tuning sans augmentation | 0,9108 | 2,24 M | 0,207 | 0,703 |
+
+**Choix proposé : MobileNetV2 en fine-tuning, avec augmentation de données.** Il obtient à la fois le
+meilleur F1 de validation et le meilleur score de frugalité.
+
+**Le choix du réseau pèse plus que la stratégie d'entraînement.** MobileNetV2 gelé (0,667) devance
+ResNet-18 en fine-tuning (0,638) alors que son F1 est nettement plus faible (0,874 contre 0,913) : comme
+dans l'exemple de l'énoncé, un réseau léger un peu moins précis passe devant un réseau plus lourd et plus
+précis. Pour égaler MobileNetV2 en fine-tuning, ResNet-18 devrait compenser une pénalité supérieure de
+0,275 − 0,207 = 0,068, soit atteindre un F1 d'au moins 0,925 + 0,068 ≈ 0,993, ce qui est irréaliste.
+
+**Geler un réseau ne réduit pas sa pénalité.** Le challenge compte tous les paramètres du réseau, y compris
+ceux qui ne sont pas entraînés : MobileNetV2 gelé et en fine-tuning ont la même pénalité et ne sont
+départagés que par leur F1.
+
+**La légèreté seule ne suffit pas.** La baseline a le moins de paramètres (1,08 M) mais son F1 est si faible
+qu'elle obtient la pire frugalité.
+
+**Le choix ne dépend pas de l'unité de R.** Si R était compté en nombre brut de paramètres, la pénalité
+vaudrait environ 0,3 pour tous les modèles et le classement serait celui du F1 : MobileNetV2 en
+fine-tuning resterait premier.
+
+**Limite.** Ces scores sont calculés sur la validation ; le score officiel sera calculé par le serveur sur
+le jeu de test.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
@@ -238,3 +278,4 @@ Rien de consigné pour l'instant.
 | Maksim | Claude Code         | Relecture de `models.py` et `train.py`, correction des bugs et réécriture de `train.py`, tests           | `train.py`, `models.py`     |
 | Maksim | Claude, Claude Code | Script d'analyse des runs et rédaction du diagnostic biais / variance à partir des courbes | analyse_entrainement.py, section 4.2 |
 | Maksim | Claude Code         | Comparaison des runs avec / sans augmentation, mise à jour du suivi de Greg et du protocole              | suivi 3.4, protocole 3.3    |
+| Maksim | Claude, Claude Code | Script de frugalité, figure d'iso-frugalité et rédaction de l'analyse | frugalite.py, section 4.1 |
