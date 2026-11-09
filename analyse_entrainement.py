@@ -54,7 +54,7 @@ def figure_f1(historiques: dict[str, pd.DataFrame]) -> None:
     fig, ax = plt.subplots(figsize=(9, 5.5))
     for run, h in historiques.items():
         if run.endswith("_noaug"):
-            continue
+            continue  # comparé à part dans figure_augmentation (tâche 4.4)
         nom, couleur, trait = RUNS[run]
         ax.plot(h["epoque"], h["val_f1"], trait, color=couleur, label=nom)
         # un point sur le meilleur F1 du run
