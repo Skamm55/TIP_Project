@@ -430,4 +430,5 @@ sans donner leur proportion exacte sur les 225.
 | Maksim | Claude, Claude Code | Figures et rédaction de l'étude de l'augmentation à partir des résultats | analyse_entrainement.py, section 4.4 |
 | Maksim | Claude | Aide à l'interprétation des feature maps et des filtres, relue et vérifiée sur les figures | section 4.5 |
 | Maksim | Claude, Claude Code | Rédaction du compte rendu de choix du modèle final à partir des analyses 4.1 à 4.5 | DECISION_MODELE_FINAL.md |
+| Maksim | Claude Code | Revue globale : nettoyage du code et des commentaires, rapport de revue | tous les fichiers .py, RAPPORT_REVUE.md |
 | Oggy   | Claude Code         | Script d'analyse des erreurs, choix des images mal classées et rédaction des commentaires | analyse_erreurs.py, section 4.3 |
