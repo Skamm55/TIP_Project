@@ -175,6 +175,44 @@ fine-tuning resterait premier.
 **Limite.** Ces scores sont calculés sur la validation ; le score officiel sera calculé par le serveur sur
 le jeu de test.
 
+### Étude de l'augmentation de données (tâche 4.4)
+
+Figures : `results/figures/augmentation_avec_sans.png`, `results/figures/augmentation_f1_par_classe.png`.
+Protocole : `PROTOCOLE_AUGMENTATION.md`.
+
+| MobileNetV2 fine-tuning | Avec augmentation | Sans augmentation |
+|---|---|---|
+| Meilleur F1 macro de validation | 0,925 (époque 15) | 0,911 (époque 11) |
+| Accuracy train finale | 97,8 % | 99,96 % (99,6 % dès l'époque 9) |
+| Accuracy validation finale | 91,5 % | 89,9 % |
+| Écart train / validation | 6,2 points | 10,0 points |
+| Loss de validation minimale | 0,290 (époque 11) | 0,341 (époque 6), puis 0,366 en fin de run |
+| Score de frugalité | 0,718 | 0,703 |
+
+**Résultat principal.** Sans augmentation, le modèle mémorise presque parfaitement les images
+d'entraînement (99,6 % d'accuracy dès l'époque 9), l'écart entre train et validation passe de 6,2 à
+10,0 points et la loss de validation atteint son minimum cinq époques plus tôt avant de remonter plus
+haut. Ces trois indices traduisent une variance plus élevée, ce qui confirme le rôle de l'augmentation
+de données comme remède au surapprentissage (complementary slides, p.28).
+
+**Effet sur le F1.** Le F1 macro baisse de 0,014 sans augmentation. Cet écart est cohérent avec les
+courbes mais reste modeste, juste au-dessus du seuil de 0,01 fixé dans le protocole, avec une seule
+graine : c'est la dynamique d'apprentissage, plus que l'écart de F1, qui constitue la preuve principale.
+
+**Effet par classe.** L'hypothèse selon laquelle les petites classes seraient les plus touchées n'est
+que partiellement vérifiée. `dairy` est la classe la plus pénalisée (F1 de 0,912 à 0,858), notamment
+parce que 13 images de `dessert` sont prédites `dairy` : c'est précisément la paire de classes proches
+repérée lors de l'analyse exploratoire. `egg`, classe de taille moyenne mais visuellement très
+diverse (œufs durs, omelettes, œufs au plat), baisse aussi (0,920 à 0,882). En revanche `rice` et
+`noodles-pasta`, petites mais très homogènes, restent presque parfaites (F1 de 0,98 à 0,99) avec ou
+sans augmentation. `soup` est la seule classe en légère hausse (0,947 à 0,955), dans la marge du hasard.
+L'augmentation aide donc surtout les classes visuellement hétérogènes ou proches d'une autre classe,
+davantage que les classes simplement peu nombreuses. Ce constat rejoint l'analyse des erreurs du modèle
+final (tâche 4.3) : le déséquilibre entre classes n'explique pas les erreurs, la diversité visuelle et le
+recouvrement entre catégories, si.
+
+**Choix retenu.** Le modèle final est entraîné avec augmentation.
+
 ### Prochaines tâches
 
 - **1.11** squelette du rapport et journal IA
@@ -351,4 +389,5 @@ sans donner leur proportion exacte sur les 225.
 | Maksim | Claude, Claude Code | Script d'analyse des runs et rédaction du diagnostic biais / variance à partir des courbes | analyse_entrainement.py, section 4.2 |
 | Maksim | Claude Code         | Comparaison des runs avec / sans augmentation, mise à jour du suivi de Greg et du protocole              | suivi 3.4, protocole 3.3    |
 | Maksim | Claude, Claude Code | Script de frugalité, figure d'iso-frugalité et rédaction de l'analyse | frugalite.py, section 4.1 |
+| Maksim | Claude, Claude Code | Figures et rédaction de l'étude de l'augmentation à partir des résultats | analyse_entrainement.py, section 4.4 |
 | Oggy   | Claude Code         | Script d'analyse des erreurs, choix des images mal classées et rédaction des commentaires | analyse_erreurs.py, section 4.3 |

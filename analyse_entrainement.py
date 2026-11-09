@@ -1,16 +1,19 @@
 """
 analyse_entrainement.py : courbes et synthèse des entraînements.
-Responsable : Maksim (tâche 4.2)
+Responsable : Maksim (tâches 4.2 et 4.4)
 
 Lit results/<run>/history.csv pour chaque run et produit :
 - results/figures/f1_validation_runs.png : F1 macro de validation de tous les runs
 - results/figures/train_vs_val_finetuning.png : train vs validation en fine-tuning
 - results/figures/train_vs_val_gele.png : train vs validation en mode gelé
+- results/figures/augmentation_avec_sans.png : MobileNetV2 fine-tuning avec et sans augmentation (4.4)
+- results/figures/augmentation_f1_par_classe.png : F1 par classe avec et sans augmentation (4.4)
 - results/synthese_runs.csv : une ligne par run (aussi affichée dans la console)
 
 Usage : python analyse_entrainement.py
 """
 
+import json
 from pathlib import Path
 
 import matplotlib
@@ -112,6 +115,87 @@ def figure_train_vs_val(historiques: dict[str, pd.DataFrame], runs: list[str], n
     plt.close(fig)
 
 
+def figure_augmentation(historiques: dict[str, pd.DataFrame]) -> None:
+    """Tâche 4.4 : MobileNetV2 fine-tuning avec et sans augmentation, accuracy à gauche, loss à droite."""
+    runs = {"mobilenetv2_finetune": ("avec", "tab:blue"), "mobilenetv2_finetune_noaug": ("sans", "tab:red")}
+    if not all(r in historiques for r in runs):
+        print("augmentation_avec_sans.png non créée : il manque un des deux runs MobileNetV2 fine-tuning")
+        return
+
+    fig, (ax_acc, ax_loss) = plt.subplots(1, 2, figsize=(13, 5))
+    for run, (nom, couleur) in runs.items():
+        h = historiques[run]
+        # trait plein pour la validation, pointillé pour le train
+        ax_acc.plot(h["epoque"], h["val_acc"], "-", color=couleur, label=f"validation {nom} augmentation")
+        ax_acc.plot(h["epoque"], h["train_acc"], "--", color=couleur, label=f"train {nom} augmentation")
+        ax_loss.plot(h["epoque"], h["val_loss"], "-", color=couleur, label=f"validation {nom} augmentation")
+        ax_loss.plot(h["epoque"], h["train_loss"], "--", color=couleur, label=f"train {nom} augmentation")
+
+    # une ligne verticale au minimum de la loss de validation de chaque run (après avoir tracé les
+    # courbes, pour que get_ylim donne déjà les bonnes limites)
+    for run, (nom, couleur) in runs.items():
+        h = historiques[run]
+        epoque_min = h.loc[h["val_loss"].idxmin(), "epoque"]
+        ax_loss.axvline(epoque_min, color=couleur, linestyle=":", linewidth=1)
+        # texte à gauche de la ligne si elle est dans la 2e moitié de l'axe, sinon il serait coupé
+        a_gauche = epoque_min > (h["epoque"].min() + h["epoque"].max()) / 2
+        ax_loss.annotate(f"min {nom}", xy=(epoque_min, ax_loss.get_ylim()[1]),
+                         xytext=(-4 if a_gauche else 4, -14), textcoords="offset points",
+                         ha="right" if a_gauche else "left", fontsize=9, color=couleur)
+
+    ax_acc.set_title("Accuracy")
+    ax_acc.set_ylabel("accuracy")
+    ax_loss.set_title("Loss")
+    ax_loss.set_ylabel("loss")
+    for ax in (ax_acc, ax_loss):
+        ax.set_xlabel("époque")
+        ax.grid(alpha=0.3)
+        ax.legend(fontsize=9)
+    fig.suptitle("MobileNetV2 fine-tuning : avec et sans augmentation de données")
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "augmentation_avec_sans.png", dpi=150)
+    plt.close(fig)
+
+
+def figure_f1_par_classe_augmentation() -> None:
+    """Tâche 4.4 : F1 par classe avec et sans augmentation, classes triées par écart décroissant."""
+    f1 = {}
+    for run, nom in [("mobilenetv2_finetune", "avec"), ("mobilenetv2_finetune_noaug", "sans")]:
+        fichier = RESULTS_DIR / run / "metrics.json"
+        if not fichier.exists():
+            print(f"augmentation_f1_par_classe.png non créée : {fichier.relative_to(ROOT)} n'existe pas")
+            return
+        with open(fichier, encoding="utf-8") as f:
+            f1[nom] = {c: v["f1"] for c, v in json.load(f)["par_classe"].items()}
+
+    tableau = pd.DataFrame(f1)
+    tableau["ecart"] = tableau["avec"] - tableau["sans"]  # > 0 : la classe perd sans augmentation
+    tableau = tableau.sort_values("ecart", ascending=False)
+
+    x = range(len(tableau))
+    largeur = 0.4
+    fig, ax = plt.subplots(figsize=(11, 5))
+    ax.bar([i - largeur / 2 for i in x], tableau["avec"], largeur, color="tab:blue", label="avec augmentation")
+    ax.bar([i + largeur / 2 for i in x], tableau["sans"], largeur, color="tab:red", label="sans augmentation")
+    # l'écart au-dessus de chaque paire de barres
+    for i, (_, ligne) in zip(x, tableau.iterrows()):
+        ecart = round(-ligne["ecart"], 3) + 0.0  # le + 0.0 évite d'afficher "-0,000" pour rice
+        texte = f"{ecart:+.3f}".replace(".", ",") if ecart != 0 else "0,000"
+        ax.annotate(texte, xy=(i, max(ligne["avec"], ligne["sans"])),
+                    xytext=(0, 3), textcoords="offset points", ha="center", fontsize=8)
+
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(tableau.index, rotation=30, ha="right")
+    ax.set_ylabel("F1 de validation")
+    ax.set_ylim(0.8, 1.03)  # tous les F1 sont au-dessus de 0,8 : on zoome pour voir les écarts
+    ax.grid(alpha=0.3, axis="y")
+    ax.legend(loc="upper left", ncol=2)  # en haut à gauche, la place est libre au-dessus de dairy et egg
+    ax.set_title("F1 par classe avec et sans augmentation (écart sans - avec au-dessus des barres)")
+    fig.tight_layout()
+    fig.savefig(FIGURES_DIR / "augmentation_f1_par_classe.png", dpi=150)
+    plt.close(fig)
+
+
 def synthese(historiques: dict[str, pd.DataFrame]) -> pd.DataFrame:
     """Une ligne de chiffres clés par run."""
     lignes = []
@@ -149,6 +233,8 @@ if __name__ == "__main__":
                         "train_vs_val_finetuning.png", "Fine-tuning : train vs validation")
     figure_train_vs_val(historiques, ["mobilenetv2_frozen", "resnet18_frozen"],
                         "train_vs_val_gele.png", "Mode gelé : train vs validation")
+    figure_augmentation(historiques)
+    figure_f1_par_classe_augmentation()
 
     tableau = synthese(historiques)
     tableau.to_csv(RESULTS_DIR / "synthese_runs.csv", index=False)
