@@ -109,11 +109,9 @@ class TestDataset(Dataset):
         self.paths = sorted(lister_images(self.root), key=lambda p: int(p.stem))
 
     def __len__(self) -> int:
-        """Nombre d'images de test."""
         return len(self.paths)
 
     def __getitem__(self, idx: int):
-        """Renvoie l'image transformée et son nom."""
         path = self.paths[idx]
         img = pil_loader(path, self.img_size)
         return self.transform(img), path.stem

@@ -23,6 +23,7 @@ from torchvision import models as tv_models
 
 from data import (CLASSES, DEFAULT_DATA_DIR, FIGURES_DIR, IMAGENET_MEAN, IMAGENET_STD,
                   chemin_donnees, get_transforms, lister_images, pil_loader)
+from models import get_model
 
 # taille des poids ImageNet, juste pour prévenir au 1er lancement
 TAILLE_POIDS = {"mobilenetv2": "14 Mo", "resnet18": "45 Mo"}
@@ -33,11 +34,6 @@ def load_model(name: str, checkpoint: str | None = None) -> torch.nn.Module:
     if checkpoint is not None:
         if not Path(checkpoint).exists():
             raise RuntimeError(f"Le fichier {checkpoint} n'existe pas.")
-        try:
-            from models import get_model
-        except ImportError:
-            raise RuntimeError("Impossible d'importer get_model depuis models.py "
-                               "(models.py n'est peut-être pas encore écrit).")
         try:
             model = get_model(name, "finetune")
             poids = torch.load(checkpoint, map_location="cpu")

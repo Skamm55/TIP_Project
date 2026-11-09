@@ -1,4 +1,5 @@
-"""models.py : définition des modèles du projet Food-11.
+"""
+models.py : définition des modèles du projet Food-11.
 Responsable : Julien (tâche 1.5)
 
 Trois architectures sont disponibles :
@@ -79,16 +80,10 @@ def _head_parameters(model, name):
 
 
 def get_model(name, mode="finetune", num_classes=NUM_CLASSES, pretrained=True, img_size=224):
-    """Construit et retourne le modèle demandé.
+    """Construit le modèle name ("baseline", "mobilenetv2" ou "resnet18") en mode "frozen" ou "finetune".
 
-    Args:
-        name: "baseline", "mobilenetv2" ou "resnet18".
-        mode: "frozen" (seule la tête est entraînée) ou "finetune" (tout est entraîné).
-              Ignoré pour la baseline, qui est toujours entièrement entraînée.
-        num_classes: nombre de classes de sortie (11 pour Food-11).
-        pretrained: charge les poids ImageNet pour mobilenetv2 et resnet18.
-                    Mettre False pour les tests sans réseau ni téléchargement.
-        img_size: taille de l'image d'entrée (utile seulement pour la baseline).
+    Le mode est ignoré pour la baseline, toujours entraînée en entier. pretrained=False évite de
+    télécharger les poids ImageNet (pour les tests). img_size ne sert qu'à la baseline (taille de la FC).
     """
     if name not in MODEL_NAMES:
         raise ValueError(f"Modèle inconnu : {name!r}. Choix possibles : {MODEL_NAMES}")
@@ -104,10 +99,9 @@ def get_model(name, mode="finetune", num_classes=NUM_CLASSES, pretrained=True, i
         model = _build_resnet18(num_classes, pretrained)
 
     if mode == "frozen":
-        # On gèle tout le réseau...
+        # le réseau sert d'extracteur de features : seule la nouvelle tête apprend
         for p in model.parameters():
             p.requires_grad = False
-        # ...puis on réactive uniquement la nouvelle tête.
         for p in _head_parameters(model, name):
             p.requires_grad = True
 

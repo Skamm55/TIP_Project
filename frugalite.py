@@ -1,6 +1,6 @@
 """
 frugalite.py : tableau de frugalité des runs et figure F1 / nombre de paramètres.
-Tâche 4.1
+Responsable : Maksim (tâche 4.1)
 
 Lit results/<run>/metrics.json pour chaque run et produit :
 - results/frugalite.csv : F1, paramètres, pénalité, frugalité et rangs de chaque run

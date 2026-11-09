@@ -7,7 +7,7 @@ Format strict attendu : {"0": "bread", "1": "dessert", ...}
 - valeur : nom de classe en minuscules, identique au nom du dossier du train
 
 Usage :
-    python predict.py --model mobilenetv2 --mode frozen --weights checkpoints/best.pth
+    python predict.py --model mobilenetv2 --mode finetune --weights results/mobilenetv2_finetune/best.pth
     python predict.py --self-test
 """
 
@@ -18,6 +18,7 @@ from pathlib import Path
 import torch
 
 from data import CLASSES, DEFAULT_DATA_DIR, get_test_loader
+from models import get_model
 
 ROOT = Path(__file__).parent
 NB_IMAGES_TEST = 3097
@@ -139,8 +140,6 @@ if __name__ == "__main__":
     else:
         if args.model is None or args.weights is None:
             parser.error("il faut --model et --weights (ou --self-test)")
-
-        from models import get_model  # ici pour que --self-test marche sans models.py
 
         device = choisir_device()
         print("Device :", device)

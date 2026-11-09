@@ -18,7 +18,7 @@ import argparse
 from pathlib import Path
 
 import matplotlib
-matplotlib.use("Agg")
+matplotlib.use("Agg")  # pas de fenêtre, on enregistre juste les figures
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -33,6 +33,7 @@ FIGURES_DIR = RESULTS_DIR / "figures"
 
 
 def plot_confusion(df, run):
+    """Matrice de confusion normalisée par ligne, avec le nombre d'images dans chaque case."""
     matrice = confusion_matrix(df["vraie_classe"], df["classe_predite"], labels=CLASSES)
     # normalisée par ligne : la case (i, j) = part des images de la classe i prédites j
     norm = matrice / matrice.sum(axis=1, keepdims=True)
@@ -57,6 +58,7 @@ def plot_confusion(df, run):
 
 
 def plot_f1_par_classe(df, run):
+    """Précision, rappel et F1 par classe, triés par F1. Renvoie aussi le tableau des scores."""
     precision, rappel, f1, support = precision_recall_fscore_support(
         df["vraie_classe"], df["classe_predite"], labels=CLASSES, zero_division=0)
     ordre = np.argsort(f1)
