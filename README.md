@@ -13,7 +13,6 @@ Le but est d'avoir un bon F1 macro tout en gardant un modèle léger (peu de par
 | `evaluate.py`  | F1, matrice de confusion, frugalité            | Oggy   |
 | `predict.py`   | JSON des prédictions sur le test               | Oggy   |
 | `visualize.py` | feature maps                                   | Maksim |
-| `notebooks/`   | un notebook par personne                       | tous   |
 | `results/`     | métriques et petites figures                   | tous   |
 
 Pour l'analyse du dataset, voir `DATA.md`. Pour l'étude de l'augmentation, voir `PROTOCOLE_AUGMENTATION.md`.
@@ -92,7 +91,6 @@ Pour cocher, il faut un compte Claude (gratuit) et l'invitation de Maksim.
 
 - faire un `git pull` avant de commencer
 - chacun touche surtout à son propre fichier
-- un notebook par personne
 - pas de données ni de fichiers `.pth` sur Git
 - mettre le numéro de la tâche dans les messages de commit (ex : `1.3 data.py : split stratifié`)
 - mettre à jour `SUIVI_AVANCEMENT.md` à chaque séance de travail (voir ci-dessous)

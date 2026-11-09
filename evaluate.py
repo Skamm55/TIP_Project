@@ -17,6 +17,7 @@ import torch
 from sklearn.metrics import confusion_matrix, f1_score, precision_score, recall_score
 
 from data import CLASSES
+from models import count_params
 
 RESULTS_DIR = Path(__file__).parent / "results"
 
@@ -52,11 +53,6 @@ def frugalite(P, R, w=0.3):
 
     R en millions de paramètres (c'est ce qui redonne les exemples de l'énoncé)."""
     return P - w / (1 + 1 / R)
-
-
-def compter_params(model):
-    """Nombre total de paramètres du modèle (gelés compris)."""
-    return sum(p.numel() for p in model.parameters())
 
 
 def calculer_metriques(y_true, y_pred, n_params=None, w=0.3):
@@ -120,7 +116,8 @@ def afficher(metriques):
 def evaluer(model, val_loader, device="cpu", dossier=RESULTS_DIR, w=0.3):
     """Prédictions + métriques + export + affichage."""
     y_true, y_pred, confiances = predire(model, val_loader, device)
-    metriques = calculer_metriques(y_true, y_pred, compter_params(model), w)
+    # tous les paramètres, gelés compris : c'est ce que compte le score du challenge
+    metriques = calculer_metriques(y_true, y_pred, count_params(model), w)
     sauver_resultats(metriques, y_true, y_pred, confiances, noms_images(val_loader), dossier)
     afficher(metriques)
     return metriques
@@ -164,7 +161,7 @@ if __name__ == "__main__":
     assert all(0 < c <= 1 for c in conf)
     print("Test 4 OK : predire() sur 20 fausses images")
 
-    m = calculer_metriques(y_true, y_pred, compter_params(model))
+    m = calculer_metriques(y_true, y_pred, count_params(model))
     with tempfile.TemporaryDirectory() as tmp:
         sauver_resultats(m, y_true, y_pred, conf, [f"faux/{i}.jpg" for i in range(20)], tmp)
         with open(Path(tmp) / "metrics.json", encoding="utf-8") as f:

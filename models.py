@@ -115,11 +115,6 @@ def count_params(model, trainable_only=False):
     )
 
 
-def trainable_parameters(model):
-    """Paramètres à passer à l'optimiseur (ceux dont requires_grad est True)."""
-    return [p for p in model.parameters() if p.requires_grad]
-
-
 if __name__ == "__main__":
     # Test sans dataset : une entrée aléatoire doit donner une sortie (2, 11).
     # pretrained=False pour ne rien télécharger ; le nombre de paramètres est le même.

@@ -222,7 +222,6 @@ __marimo__/
 # ---- Projet Food-11 ----
 # Dataset et poids : jamais sur Git (consigne "without binary files")
 data/
-checkpoints/
 *.pth
 *.pt
 *.zip

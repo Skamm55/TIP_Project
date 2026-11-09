@@ -114,7 +114,13 @@ Tests après modification :
 | `python visualize.py`                                                                           | OK : `featuremaps_mobilenetv2_bread_957.png`                     |
 | `python analyse_entrainement.py`, `python frugalite.py`, `python analyse_erreurs.py`            | OK : `git diff --stat results/` vide, CSV et figures identiques  |
 
-## 6. Suppressions proposées, en attente de décision
+## 6. Suppressions proposées
+
+Toutes les recommandations ci-dessous ont été validées par Maksim et appliquées dans le commit
+« revue : suppressions validées » : `predictions.json`, `results/.gitkeep` et `notebooks/.gitkeep`
+retirés, `trainable_parameters` supprimée, `evaluate.py` utilise `count_params` de `models.py`, ligne
+`checkpoints/` retirée du `.gitignore`, règle « un notebook par personne » retirée du README. Les trois
+figures non citées sont gardées. Tests refaits ensuite : tous OK, `results/` inchangé.
 
 | Élément                                         | Recommandation                     | Raison                                                                                       |
 | ----------------------------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------- |
