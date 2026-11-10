@@ -26,7 +26,6 @@ Les documents :
 | `PROTOCOLE_AUGMENTATION.md` | protocole de l'étude avec / sans augmentation               |
 | `DECISION_MODELE_FINAL.md`  | choix du modèle soumis, justifié étape par étape            |
 | `SUIVI_AVANCEMENT.md`       | journal de chacun et tableau d'usage de l'IA                |
-| `RAPPORT_REVUE.md`          | revue globale du projet du 9 novembre                       |
 
 ## Installation
 

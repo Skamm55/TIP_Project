@@ -41,7 +41,7 @@ train / validation sont identiques.
 | ------------------------------------------------------------- | ----------------------------- | ------------------------------------------- |
 | F1 macro de validation                                        | `config.json`, `metrics.json` | plus faible                                 |
 | Écart entre accuracy train et validation (dernière époque)    | `history.csv`                 | plus grand                                  |
-| Loss de validation au fil des époques                         | `curves.png`, `history.csv`   | remonte plus tôt                            |
+| Loss de validation au fil des époques                         | `augmentation_avec_sans.png`  | remonte plus tôt                            |
 | F1 par classe, surtout `rice`, `dairy` et `noodles-pasta`     | `metrics.json`                | baisse plus marquée sur les petites classes |
 
 ## Hypothèse

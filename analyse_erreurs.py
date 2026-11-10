@@ -10,7 +10,6 @@ Produit dans results/figures/ :
 
 Usage :
     python analyse_erreurs.py
-    python analyse_erreurs.py --run resnet18_finetune
     python analyse_erreurs.py --images "meat/579.jpg,dairy/538.jpg"   (planche, besoin de data/food-11)
 """
 

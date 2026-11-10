@@ -35,7 +35,7 @@ Comme le score du serveur est un F1 macro, chaque classe compte autant dans la n
 
 Rice n'a que 75 images en validation, donc son F1 risque de pas mal varier d'un entraînement à l'autre.
 
-Le détail du split (quelle image est dans quel ensemble) est dans `results/split_seed42.csv`.
+`data.py` enregistre le détail du split (quelle image est dans quel ensemble) dans `results/split_seed42.csv` ; avec la même graine, on retrouve exactement le même découpage.
 
 ## Tailles des images
 
