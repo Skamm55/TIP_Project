@@ -3,9 +3,8 @@ analyse_erreurs.py : matrice de confusion et analyse des erreurs du meilleur mod
 Responsable : Oggy (tâche 4.3)
 
 Tout est calculé depuis results/<run>/val_predictions.csv, sans les poids.
-Produit dans results/figures/ :
+Affiche les scores par classe et les confusions, et produit dans results/figures/ :
 - confusion_<run>.png : matrice de confusion normalisée par ligne (rappel sur la diagonale)
-- f1_par_classe_<run>.png : précision, rappel et F1 par classe
 - erreurs_<run>.png : planche d'images mal classées (seulement avec --images, il faut le dataset)
 
 Usage :
@@ -56,26 +55,11 @@ def plot_confusion(df, run):
     return matrice
 
 
-def plot_f1_par_classe(df, run):
-    """Précision, rappel et F1 par classe, triés par F1. Renvoie aussi le tableau des scores."""
+def scores_par_classe(df):
+    """Précision, rappel et F1 par classe, triés par F1 (une précision basse face au rappel
+    signale une classe « refuge », que le modèle prédit trop souvent)."""
     precision, rappel, f1, support = precision_recall_fscore_support(
         df["vraie_classe"], df["classe_predite"], labels=CLASSES, zero_division=0)
-    ordre = np.argsort(f1)
-    y = np.arange(len(CLASSES))
-
-    plt.figure(figsize=(8, 6))
-    plt.barh(y - 0.27, precision[ordre], height=0.27, label="précision", color="tab:blue")
-    plt.barh(y, rappel[ordre], height=0.27, label="rappel", color="tab:orange")
-    plt.barh(y + 0.27, f1[ordre], height=0.27, label="F1", color="tab:green")
-    noms = [f"{CLASSES[i]} ({support[i]})" for i in ordre]
-    plt.yticks(y, noms)
-    plt.xlim(max(0, min(precision.min(), rappel.min()) - 0.05), 1)
-    plt.xlabel("Score")
-    plt.title(f"Scores par classe ({run}, validation)\nentre parenthèses : nombre d'images")
-    plt.legend(loc="lower right")
-    plt.tight_layout()
-    plt.savefig(FIGURES_DIR / f"f1_par_classe_{run}.png", dpi=150)
-    plt.close()
     return pd.DataFrame({"classe": CLASSES, "precision": precision, "rappel": rappel,
                          "f1": f1, "nb_images": support}).sort_values("f1")
 
@@ -114,8 +98,7 @@ if __name__ == "__main__":
           f"({len(erreurs) / len(df):.1%})\n")
 
     plot_confusion(df, args.run)
-    scores = plot_f1_par_classe(df, args.run)
-    print(scores.round(3).to_string(index=False))
+    print(scores_par_classe(df).round(3).to_string(index=False))
 
     print("\nConfusions les plus fréquentes (vraie -> prédite) :")
     paires = erreurs.groupby(["vraie_classe", "classe_predite"]).size().sort_values(ascending=False)
@@ -140,5 +123,4 @@ if __name__ == "__main__":
         plot_erreurs(df, [i.strip() for i in args.images.split(",")], data_dir, args.run)
         print(f"\nPlanche enregistrée : results/figures/erreurs_{args.run}.png")
 
-    print(f"\nFigures enregistrées : results/figures/confusion_{args.run}.png, "
-          f"results/figures/f1_par_classe_{args.run}.png")
+    print(f"\nFigure enregistrée : results/figures/confusion_{args.run}.png")
