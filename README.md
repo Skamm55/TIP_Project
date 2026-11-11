@@ -1,148 +1,173 @@
-# TIP_Project : challenge Food-11
+# Challenge Food-11 : classification d'images de nourriture
 
-Projet de TIP (4TC, INSA Lyon). On classe des images de nourriture en 11 catégories avec du transfer learning.
-Le but est d'avoir un bon F1 macro tout en gardant un modèle léger (peu de paramètres).
+Projet de TIP (4TC, INSA Lyon, 2026-2027), par Maksim Nèples, Greg Blanzat, Julien Chautant et
+Ognjen Stojanovic.
 
-## Fichiers
+Le but du challenge est de classer des photos de plats en 11 catégories (bread, dairy, dessert, egg,
+fried, meat, noodles-pasta, rice, seafood, soup, vegetable-fruit). Le classement ne se fait pas sur le
+F1 seul : le score de frugalité pénalise les réseaux qui ont beaucoup de paramètres,
 
-| Fichier                   | Rôle                                                       | Qui    |
-| ------------------------- | ---------------------------------------------------------- | ------ |
-| `data.py`                 | chargement des données, split, transformations             | Maksim |
-| `models.py`               | baseline du TD, MobileNetV2, ResNet-18                     | Julien |
-| `train.py`                | entraînement                                               | Greg   |
-| `evaluate.py`             | F1, matrice de confusion, frugalité                        | Oggy   |
-| `predict.py`              | JSON des prédictions sur le test                           | Oggy   |
-| `visualize.py`            | feature maps et filtres de la 1re couche                   | Maksim |
-| `analyse_entrainement.py` | courbes, biais / variance, étude de l'augmentation         | Maksim |
-| `frugalite.py`            | tableau de frugalité et figure F1 / paramètres             | Maksim |
-| `analyse_erreurs.py`      | matrice de confusion et erreurs du meilleur modèle         | Oggy   |
-| `results/`                | métriques des runs, tableaux et figures                    | tous   |
+    Frug = F1 macro − 0,3 · R / (R + 1)      avec R le nombre de paramètres en millions.
 
-Les documents :
+On a comparé le CNN du TD, entraîné de zéro, à deux réseaux pré-entraînés sur ImageNet (MobileNetV2 et
+ResNet-18), chacun en mode gelé et en fine-tuning. Le modèle qu'on a retenu est **MobileNetV2 en
+fine-tuning complet, avec augmentation de données** : F1 macro de 0,925 sur notre validation, et 0,926
+sur le test du serveur, pour une frugalité de 0,719.
 
-| Fichier                     | Contenu                                                     |
-| --------------------------- | ----------------------------------------------------------- |
-| `DATA.md`                   | analyse du dataset et normalisation                         |
-| `PROTOCOLE_AUGMENTATION.md` | protocole de l'étude avec / sans augmentation               |
-| `DECISION_MODELE_FINAL.md`  | choix du modèle soumis, justifié étape par étape            |
-| `SUIVI_AVANCEMENT.md`       | journal de chacun et tableau d'usage de l'IA                |
+Toute la démarche et l'analyse des résultats sont dans le rapport. Ce README explique comment est
+organisé le code et comment tout relancer.
+
+## Ce qu'il y a dans le dossier
+
+```
+data.py                    chargement des images, split train / validation, transformations
+models.py                  les trois réseaux (baseline du TD, MobileNetV2, ResNet-18)
+train.py                   entraînement d'une configuration
+evaluate.py                F1 macro, scores par classe, matrice de confusion, frugalité
+predict.py                 prédictions sur le test et fichier JSON pour le serveur
+analyse_entrainement.py    courbes d'apprentissage et comparaison avec / sans augmentation
+frugalite.py               tableau de frugalité des runs
+analyse_erreurs.py         matrice de confusion et erreurs du modèle retenu
+visualize.py               filtres et feature maps de la 1re couche de convolution
+requirements.txt           bibliothèques Python nécessaires
+
+results/
+    baseline/                      un dossier par configuration entraînée :
+    mobilenetv2_frozen/              config.json   réglages du run
+    mobilenetv2_finetune/            history.csv   loss, accuracy et F1 à chaque époque
+    mobilenetv2_finetune_noaug/      metrics.json  scores du meilleur modèle sur la validation
+    resnet18_frozen/
+    resnet18_finetune/
+    test_surapprentissage/         vérification de la chaîne sur 41 images
+    figures/                       toutes les figures du rapport
+    synthese_runs.csv              chiffres clés de chaque run
+    frugalite.csv                  F1, nombre de paramètres et frugalité de chaque run
+    predictions.json               le fichier soumis au serveur
+```
+
+Le dossier du modèle retenu contient en plus `val_predictions.csv` (la prédiction pour chaque image de
+validation), qui sert à l'analyse des erreurs.
+
+Deux choses ne sont pas dans le zip, comme demandé dans les consignes : les images du dataset et les
+poids des réseaux entraînés (fichiers `best.pth`, entre 4 et 45 Mo chacun). Les scripts d'analyse
+n'en ont pas besoin, mais pour refaire un JSON il faut d'abord ré-entraîner le modèle (voir plus bas).
 
 ## Installation
 
+Il faut Python 3.10 ou plus récent.
+
 ```bash
 python -m venv .venv
-.venv\Scripts\activate        # sous Windows
+.venv\Scripts\activate          # sous Windows (source .venv/bin/activate sous Linux / Mac)
 pip install -r requirements.txt
 ```
 
-Sur un PC avec une carte NVIDIA, il faut d'abord installer PyTorch avec CUDA (la commande est sur pytorch.org), et ensuite seulement `requirements.txt`.
+Pour entraîner sur une carte NVIDIA, installer d'abord PyTorch avec CUDA en suivant la commande donnée
+sur pytorch.org, puis seulement `requirements.txt`. Sans GPU tout marche aussi, mais l'entraînement
+complet devient très long.
 
-## Données
+Le dataset Food-11 fourni pour le cours se dézippe dans `data/food-11/`, ce qui doit donner :
 
-Dézipper `food-11.zip` (donné par le prof) dans `data/food-11/`.
-Le dossier `data/` ne doit jamais aller sur Git.
-
-## Commandes
-
-Tests sans dataset (quelques secondes, rien à télécharger) :
-
-```bash
-python models.py              # les 6 modèles donnent une sortie de taille (2, 11)
-python evaluate.py            # F1, frugalité (exemples de l'énoncé), export des fichiers
-python predict.py --self-test # format du JSON
+```
+data/food-11/train/bread/...          un dossier par classe, 13 296 images en tout
+data/food-11/test/0.jpg ... 3096.jpg  3 097 images sans étiquette
 ```
 
-Avec le dataset, vérification du chargement puis test rapide de toute la chaîne (sur CPU, quelques minutes) :
+## Vérifier que tout fonctionne
+
+Ces trois tests ne demandent ni le dataset ni de téléchargement, ils prennent quelques secondes :
+
+```bash
+python models.py               # chaque réseau doit sortir un vecteur de 11 scores
+python evaluate.py             # F1 et frugalité, dont les deux exemples de l'énoncé (0,57 et 0,54)
+python predict.py --self-test  # format du JSON attendu par le serveur
+```
+
+Avec le dataset en place, on peut faire tourner toute la chaîne en petit, sur 300 images et une seule
+époque (quelques minutes sur un processeur) :
 
 ```bash
 python data.py --subset 300
 python train.py --model mobilenetv2 --mode frozen --subset 300 --epochs 1 --out-dir results/test_chaine
 ```
 
-Le test écrit dans `results/test_chaine/`, qu'on peut supprimer ensuite.
+Le dossier `results/test_chaine/` peut être supprimé ensuite.
 
-Les 5 configurations (sur le PC de Greg) :
+## Ré-entraîner les modèles
 
-```bash
-python train.py --model baseline
-python train.py --model mobilenetv2 --mode frozen
-python train.py --model mobilenetv2 --mode finetune --epochs 15
-python train.py --model resnet18 --mode frozen
-python train.py --model resnet18 --mode finetune --epochs 15
-```
-
-Le fine-tuning se fait sur 15 époques, comme prévu dans `PROTOCOLE_AUGMENTATION.md` (le run sans
-augmentation de la tâche 3.4 doit avoir exactement les mêmes réglages).
-
-Chaque run écrit dans `results/<modèle>_<mode>/` : courbes, `history.csv`, `metrics.json`
-(F1, matrice de confusion, frugalité), `val_predictions.csv` et `best.pth` (pas sur Git).
-Pour l'étude de l'augmentation, ajouter `--no-augment` (le dossier finit par `_noaug`).
-
-Réglages par défaut, valeurs de départ à ajuster selon les courbes :
-
-| Configuration                 | Optimiseur            | Learning rate |
-| ----------------------------- | --------------------- | ------------- |
-| baseline                      | SGD, momentum 0.9     | 1e-4          |
-| pré-entraîné, mode frozen     | SGD, momentum 0.9     | 1e-2          |
-| pré-entraîné, mode finetune   | SGD, momentum 0.9     | 1e-3          |
-
-SGD avec momentum 0.9, c'est le `sgdm` des `trainingOptions` du TD Matlab.
-Pour la baseline, le TD utilisait 1e-3, mais sur des images 224×224 la couche FC est
-beaucoup plus grosse (8×111×111 entrées au lieu de 8×15×15) et la loss diverge avec 1e-3.
-On peut tout changer avec `--lr`, `--optimizer adam`, `--momentum` et `--weight-decay`.
-
-Analyses, à partir des fichiers de `results/` (pas besoin des poids ni du GPU) :
+Ce sont les six commandes qu'on a lancées. Les temps indiqués sont ceux mesurés sur notre GPU
+(RTX 2000 Ada) :
 
 ```bash
-python analyse_entrainement.py   # courbes, synthese_runs.csv, figures avec / sans augmentation
-python frugalite.py              # frugalite.csv et f1_vs_parametres.png
-python analyse_erreurs.py        # matrice de confusion et scores par classe du modèle final
+python train.py --model baseline --epochs 20                          # environ 7 min
+python train.py --model mobilenetv2 --mode frozen                     # environ 4 min
+python train.py --model resnet18 --mode frozen                        # environ 4 min
+python train.py --model mobilenetv2 --mode finetune --epochs 15       # environ 12 min
+python train.py --model resnet18 --mode finetune --epochs 15          # environ 8 min
+python train.py --model mobilenetv2 --mode finetune --epochs 15 --no-augment
 ```
 
-Données et feature maps (dataset nécessaire, poids ImageNet téléchargés au 1er lancement) :
+La dernière commande est la même que la quatrième, sans l'augmentation de données : c'est la
+comparaison faite dans le rapport.
 
-```bash
-python data.py --plot-counts --samples --sizes --stats       # chiffres et figures de DATA.md
-python visualize.py --model resnet18 --filters               # filtres de la 1re couche
-python visualize.py --classes bread dessert meat seafood soup rice
-```
+Par défaut, l'optimiseur est SGD avec un momentum de 0,9 (le `sgdm` des TD Matlab), avec un batch de 64
+et la graine 42. Le learning rate dépend de la configuration :
 
-JSON pour le serveur, avec le modèle final (MobileNetV2 en fine-tuning, voir `DECISION_MODELE_FINAL.md`) :
+| Configuration                  | Learning rate |
+| ------------------------------ | ------------- |
+| baseline                       | 1e-4          |
+| réseau pré-entraîné, gelé      | 1e-2          |
+| réseau pré-entraîné, fine-tuné | 1e-3          |
+
+Pour la baseline, on a dû descendre à 1e-4 : avec des images de 224×224, sa couche entièrement
+connectée reçoit 8×111×111 valeurs (contre 8×15×15 dans le TD sur CIFAR-10), et la loss diverge à 1e-3.
+Tous ces réglages peuvent être changés avec `--lr`, `--optimizer adam`, `--momentum`, `--weight-decay`
+ou `--batch-size` (voir `python train.py -h`).
+
+Chaque run écrit ses résultats dans `results/<réseau>_<mode>/`. Le meilleur modèle, celui qui a le
+meilleur F1 macro de validation, est enregistré dans `best.pth`, puis évalué automatiquement.
+
+## Générer le fichier pour le serveur
+
+Une fois le modèle retenu ré-entraîné :
 
 ```bash
 python predict.py --model mobilenetv2 --mode finetune --weights results/mobilenetv2_finetune/best.pth
 ```
 
-Le JSON est écrit dans `results/predictions.json`. Les poids (`best.pth`) ne sont pas sur Git : il faut
-les récupérer auprès de Greg ou de Maksim et les mettre dans le dossier du run.
+Le script prédit une classe pour chacune des 3 097 images du test, vérifie le format puis écrit
+`results/predictions.json`, sous la forme `{"0": "soup", "1": "bread", ...}`. Comptez une dizaine de
+minutes sur un processeur, beaucoup moins sur un GPU.
 
-## Suivi des tâches
+## Refaire les figures du rapport
 
-On suit les tâches et l'avancement sur la page Claude "Projet Food-11" :
-https://claude.ai/artifact/Fj6VGKKU1tyPNFoUtjYszb
+Les figures de `results/figures/` se regénèrent avec les commandes suivantes. Les trois scripts
+d'analyse travaillent uniquement à partir des fichiers de `results/`, sans dataset ni poids.
 
-Il y a un onglet par personne avec ses tâches et ce qu'il faut faire. Quand une tâche est finie, on la coche (en choisissant son nom dans "Je suis"). L'onglet Pilotage montre où on en est et le temps qu'il reste.
+| Figure                                | Commande                                                | Dataset |
+| ------------------------------------- | ------------------------------------------------------- | ------- |
+| `class_counts.png`                    | `python data.py --plot-counts`                          | oui     |
+| `samples_per_class.png`               | `python data.py --samples`                              | oui     |
+| `f1_validation_runs.png`              | `python analyse_entrainement.py`                        | non     |
+| `train_vs_val_finetuning.png`         | `python analyse_entrainement.py`                        | non     |
+| `train_vs_val_gele.png`               | `python analyse_entrainement.py`                        | non     |
+| `augmentation_avec_sans.png`          | `python analyse_entrainement.py`                        | non     |
+| `augmentation_f1_par_classe.png`      | `python analyse_entrainement.py`                        | non     |
+| `f1_vs_parametres.png`                | `python frugalite.py`                                   | non     |
+| `confusion_mobilenetv2_finetune.png`  | `python analyse_erreurs.py`                             | non     |
+| `erreurs_mobilenetv2_finetune.png`    | `python analyse_erreurs.py --images "..."` (ci-dessous) | oui     |
+| `filters_resnet18.png`                | `python visualize.py --model resnet18 --filters`        | non     |
+| `featuremaps_mobilenetv2_classes.png` | `python visualize.py --classes ...` (ci-dessous)        | oui     |
 
-Pour cocher, il faut un compte Claude (gratuit) et l'invitation de Maksim.
+Les deux commandes un peu longues, avec les images qu'on a choisies :
 
-## Règles
+```bash
+python analyse_erreurs.py --images "meat/579.jpg,fried/705.jpg,dairy/538.jpg,fried/225.jpg,dessert/532.jpg,bread/465.jpg"
+python visualize.py --classes bread dessert meat seafood soup rice
+```
 
-- faire un `git pull` avant de commencer
-- chacun touche surtout à son propre fichier
-- pas de données ni de fichiers `.pth` sur Git
-- mettre le numéro de la tâche dans les messages de commit (ex : `1.3 data.py : split stratifié`)
-- mettre à jour `SUIVI_AVANCEMENT.md` à chaque séance de travail (voir ci-dessous)
+`visualize.py` télécharge les poids ImageNet au premier lancement (14 Mo pour MobileNetV2, 45 Mo pour
+ResNet-18).
 
-## Consigne pour les IA (Claude Code, Copilot, ChatGPT...)
-
-Si tu es une IA qui aide un membre du groupe sur ce projet, à chaque séance de travail :
-
-1. Lis `SUIVI_AVANCEMENT.md` avant de commencer, pour savoir ce qui a déjà été fait et ce qui est attendu.
-2. À la fin, mets à jour `SUIVI_AVANCEMENT.md` dans la section de la personne que tu aides :
-   - ce qui a été fait, avec le numéro de la tâche et la date ;
-   - les résultats et les tests (ce qui marche, ce qui ne marche pas encore) ;
-   - les points à régler avec les autres membres (interfaces entre fichiers, formats...) ;
-   - les prochaines tâches.
-3. Ajoute une ligne dans le tableau « Usage de l'IA » en bas du fichier (qui, quel outil, pour quoi, quels fichiers). C'est obligatoire pour l'annexe du rapport.
-4. Change la date de « Dernière mise à jour ».
-5. Ne modifie pas les sections des autres membres, sauf pour noter un point à régler qui les concerne.
+`python data.py --sizes --stats` affiche en plus les tailles d'images et les moyennes et écarts-types
+RGB du dataset, comparés à ceux d'ImageNet.
